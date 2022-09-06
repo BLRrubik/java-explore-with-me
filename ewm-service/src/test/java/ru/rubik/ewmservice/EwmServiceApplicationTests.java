@@ -1,13 +1,13 @@
-package ru.yandex.mainservice;
+package ru.rubik.ewmservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MainServiceApplicationTests {
+class EwmServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
