@@ -22,8 +22,7 @@ public class CategoryMapper {
                 .collect(Collectors.toList());
     }
 
-    public static Page<CategoryDto> convertPageToDto(Page<Category> page)
-    {
+    public static Page<CategoryDto> convertPageToDto(Page<Category> page) {
         if (page.isEmpty())
         {
             return Page.empty();
