@@ -1,4 +1,4 @@
-package ru.rubik.ewmservice.category.service;
+package ru.rubik.ewmservice.category.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,9 +12,10 @@ import ru.rubik.ewmservice.category.mapper.CategoryMapper;
 import ru.rubik.ewmservice.category.repository.CategoryRepository;
 import ru.rubik.ewmservice.category.requests.CategoryCreateRequest;
 import ru.rubik.ewmservice.category.requests.CategoryUpdateRequest;
+import ru.rubik.ewmservice.category.service.CategoryService;
 
 @Service
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Autowired

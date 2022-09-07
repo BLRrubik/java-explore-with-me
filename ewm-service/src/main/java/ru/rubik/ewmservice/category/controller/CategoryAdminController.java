@@ -32,9 +32,7 @@ public class CategoryAdminController {
     }
 
     @DeleteMapping("/{catId}")
-    public HttpStatus deleteCategory(@PathVariable("catId") Long categoryId) {
+    public void deleteCategory(@PathVariable("catId") Long categoryId) {
         categoryService.deleteCategory(categoryId);
-
-        return HttpStatus.ACCEPTED;
     }
 }
