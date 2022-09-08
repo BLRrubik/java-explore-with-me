@@ -21,6 +21,6 @@ CREATE TABLE events (
 );
 
 ALTER TABLE if EXISTS events ADD CONSTRAINT fk_category_event FOREIGN KEY (category_id)
-    REFERENCES category(category_id);
+    REFERENCES categories(category_id);
 ALTER TABLE if EXISTS events ADD CONSTRAINT fk_initiator_event FOREIGN KEY (initiator)
     REFERENCES users(user_id);
