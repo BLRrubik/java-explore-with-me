@@ -1,5 +1,9 @@
 package ru.rubik.ewmservice.event.mapper;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import ru.rubik.ewmservice.category.dto.CategoryDto;
+import ru.rubik.ewmservice.category.entity.Category;
 import ru.rubik.ewmservice.event.dto.EventFullDto;
 import ru.rubik.ewmservice.event.dto.EventShortDto;
 import ru.rubik.ewmservice.event.entity.Event;
@@ -64,5 +68,23 @@ public class EventMapper {
         return events.stream()
                 .map(EventMapper::toShortDto)
                 .collect(Collectors.toList());
+    }
+
+    public static Page<EventFullDto> convertPageToFullDto(Page<Event> page) {
+        if (page.isEmpty())
+        {
+            return Page.empty();
+        }
+
+        return new PageImpl<>(toFullDtos(page.getContent()), page.getPageable(), page.getTotalElements());
+    }
+
+    public static Page<EventShortDto> convertPageToShortDto(Page<Event> page) {
+        if (page.isEmpty())
+        {
+            return Page.empty();
+        }
+
+        return new PageImpl<>(toShortDtos(page.getContent()), page.getPageable(), page.getTotalElements());
     }
 }

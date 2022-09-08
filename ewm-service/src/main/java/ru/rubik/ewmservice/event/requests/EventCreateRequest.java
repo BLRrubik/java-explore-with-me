@@ -17,7 +17,7 @@ public class EventCreateRequest {
     private String annotation;
     private LocalDateTime eventDate;
     private Boolean paid;
-    private Integer category;
+    private Long category;
     private Integer participantLimit;
     private Boolean requestModeration;
     //todo -> location
