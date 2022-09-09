@@ -24,8 +24,10 @@ public class EventPrivateController {
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getEventsByUser(@PathVariable("userId") Long userId,
-                                                               @RequestParam("from") Integer from,
-                                                               @RequestParam("size") Integer size) {
+                                                               @RequestParam(value = "from", defaultValue = "0")
+                                                                   Integer from,
+                                                               @RequestParam(value = "size", defaultValue = "10")
+                                                                   Integer size) {
         return ResponseEntity.of(Optional.of(eventService.getEventsByUser(userId, from, size).getContent()));
     }
 

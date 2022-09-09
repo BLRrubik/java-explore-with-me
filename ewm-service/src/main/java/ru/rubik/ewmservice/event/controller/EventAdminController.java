@@ -25,17 +25,23 @@ public class EventAdminController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventFullDto>> searchByAdmin(@RequestParam("users") List<Long> users,
-                                                            @RequestParam("states") List<EventState> states,
-                                                            @RequestParam("categories") List<Long> categories,
-                                                            @RequestParam("rangeStart")
+    public ResponseEntity<List<EventFullDto>> searchByAdmin(@RequestParam(value = "users", required = false)
+                                                                List<Long> users,
+                                                            @RequestParam(value = "states", required = false)
+                                                                List<EventState> states,
+                                                            @RequestParam(value = "categories", required = false)
+                                                                List<Long> categories,
+                                                            @RequestParam(value = "rangeStart", required = false)
                                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                                 LocalDateTime rangeStart,
-                                                            @RequestParam("rangeEnd")
+                                                            @RequestParam(value = "rangeEnd", required = false)
                                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                                 LocalDateTime rangeEnd,
-                                                            @RequestParam("from") Integer from,
-                                                            @RequestParam("size") Integer size) {
+                                                            @RequestParam(value = "from", defaultValue = "0")
+                                                                Integer from,
+                                                            @RequestParam(value = "size", defaultValue = "10")
+                                                                Integer size) {
+
         EventFilter filter = new EventFilter();
         filter.setUsers(users);
         filter.setStates(states);

@@ -242,12 +242,12 @@ public class EventServiceImpl implements EventService {
     private Page<Event> searchByFilters(EventFilter filter, Integer from, Integer size) {
         Set<String> params = new HashSet<>();
 
-        params.add("limit " + from);
-        params.add("offset " + size);
+        params.add("limit " + size);
+        params.add("offset " + from);
 
         Set<String> whereClauses = new HashSet<>();
 
-        if (!filter.getCategories().isEmpty()) {
+        if (filter.getCategories() != null && !filter.getCategories().isEmpty()) {
             List<String> categories = filter.getCategories().stream()
                     .map(id -> "e.category_id=" + id)
                     .toList();
@@ -265,6 +265,12 @@ public class EventServiceImpl implements EventService {
 
             whereClauses.add("date(e.event_date)>'" + timestamp + "'");
         }
+        else {
+            String timestamp = LocalDateTime.now().toString().split("T")[0] + " " +
+                    LocalDateTime.now().toString().split("T")[1];
+
+            whereClauses.add("date(e.event_date)>'" + timestamp + "'");
+        }
 
         if (filter.getRangeEnd() != null) {
             String timestamp = filter.getRangeEnd().toString().split("T")[0] + " " +
@@ -272,7 +278,7 @@ public class EventServiceImpl implements EventService {
             whereClauses.add("date(e.event_date)<'" + timestamp + "'");
         }
 
-        if (!filter.getUsers().isEmpty()) {
+        if (filter.getUsers() != null && !filter.getUsers().isEmpty()) {
             List<String> users = filter.getUsers().stream()
                     .map(id -> "e.initiator=" + id)
                     .toList();
@@ -281,23 +287,20 @@ public class EventServiceImpl implements EventService {
 
         }
 
-        if (!filter.getStates().isEmpty()) {
+        if (filter.getStates() != null && !filter.getStates().isEmpty()) {
             filter.getStates().stream()
                     .map(state -> "e.state='" + state.toString() + "'")
                     .forEach(whereClauses::add);
         }
 
         if (filter.getText() != null) {
-            whereClauses.add("e.annotation LIKE %" + filter.getText() + "%");
-            whereClauses.add("e.description LIKE %" + filter.getText() + "%");
+            whereClauses.add(" (e.annotation ILIKE '%" + filter.getText() + "%' " +
+                    "or e.description ILIKE '%" + filter.getText() + "%') ");
         }
 
         String query = "select * from events as e " +
-                " where " + String.join(" and ", whereClauses);
-
-        String queryCount = "select count(*) from events as e " +
                 " where " + String.join(" and ", whereClauses) +
-                String.join(" ", params);
+                " " + String.join(" ", params);
 
         var result = jdbcTemplate.query(query, this::mapRow);
 

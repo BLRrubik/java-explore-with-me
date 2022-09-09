@@ -24,18 +24,24 @@ public class EventPublicController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventShortDto>> search(@RequestParam("text") String text,
-                                                      @RequestParam("categories") List<Long> categories,
-                                                      @RequestParam("paid") Boolean paid,
-                                                      @RequestParam("rangeStart")
+    public ResponseEntity<List<EventShortDto>> search(@RequestParam(value = "text", required = false)
+                                                          String text,
+                                                      @RequestParam(value = "categories", required = false)
+                                                          List<Long> categories,
+                                                      @RequestParam(value = "paid", required = false)
+                                                          Boolean paid,
+                                                      @RequestParam(value = "rangeStart", required = false)
                                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                           LocalDateTime rangeStart,
-                                                      @RequestParam("rangeEnd")
+                                                      @RequestParam(value = "rangeEnd", required = false)
                                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                           LocalDateTime rangeEnd,
                                                       //todo -> onlyAvailable, sort
-                                                      @RequestParam("from") Integer from,
-                                                      @RequestParam("size") Integer size) {
+                                                      @RequestParam(value = "from", defaultValue = "0")
+                                                          Integer from,
+                                                      @RequestParam(value = "size", defaultValue = "10")
+                                                          Integer size) {
+
         EventFilter filter = new EventFilter();
         filter.setText(text);
         filter.setCategories(categories);
