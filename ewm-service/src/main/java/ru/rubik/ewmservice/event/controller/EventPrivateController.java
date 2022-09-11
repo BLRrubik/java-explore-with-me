@@ -8,6 +8,7 @@ import ru.rubik.ewmservice.event.dto.EventShortDto;
 import ru.rubik.ewmservice.event.requests.EventCreateRequest;
 import ru.rubik.ewmservice.event.requests.EventUpdateRequest;
 import ru.rubik.ewmservice.event.service.EventService;
+import ru.rubik.ewmservice.event_request.dto.RequestDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,5 +58,23 @@ public class EventPrivateController {
         return ResponseEntity.of(Optional.of(eventService.cancelEventByUser(userId, eventId, request)));
     }
 
-    //todo -> requests endpoints
+    @GetMapping("/{eventId}/requests")
+    public ResponseEntity<List<RequestDto>> getAllRequestOfEvent(@PathVariable("userId") Long userId,
+                                                                 @PathVariable("eventId") Long eventId) {
+        return ResponseEntity.of(Optional.of(eventService.getRequestsByEvent(userId, eventId)));
+    }
+
+    @PatchMapping("/{eventId}/requests/{requestId}/confirm")
+    public ResponseEntity<RequestDto> confirmRequest(@PathVariable("userId") Long userId,
+                                                     @PathVariable("eventId") Long eventId,
+                                                     @PathVariable("requestId") Long requestId) {
+        return ResponseEntity.of(Optional.of(eventService.confirmRequest(userId, eventId, requestId)));
+    }
+
+    @PatchMapping("/{eventId}/requests/{requestId}/reject")
+    public ResponseEntity<RequestDto> rejectRequest(@PathVariable("userId") Long userId,
+                                                     @PathVariable("eventId") Long eventId,
+                                                     @PathVariable("requestId") Long requestId) {
+        return ResponseEntity.of(Optional.of(eventService.rejectRequest(userId, eventId, requestId)));
+    }
 }

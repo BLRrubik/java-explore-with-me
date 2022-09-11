@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.rubik.ewmservice.event.dto.EventFullDto;
 import ru.rubik.ewmservice.event.dto.EventShortDto;
 import ru.rubik.ewmservice.event.filter.EventFilter;
+import ru.rubik.ewmservice.event.filter.EventSort;
 import ru.rubik.ewmservice.event.service.EventService;
 
 import java.time.LocalDateTime;
@@ -36,7 +37,10 @@ public class EventPublicController {
                                                       @RequestParam(value = "rangeEnd", required = false)
                                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                           LocalDateTime rangeEnd,
-                                                      //todo -> onlyAvailable, sort
+                                                      @RequestParam(value = "sort", required = false)
+                                                          EventSort sort,
+                                                      @RequestParam(value = "onlyAvailable", required = false)
+                                                          Boolean onlyAvailable,
                                                       @RequestParam(value = "from", defaultValue = "0")
                                                           Integer from,
                                                       @RequestParam(value = "size", defaultValue = "10")
@@ -48,6 +52,8 @@ public class EventPublicController {
         filter.setPaid(paid);
         filter.setRangeStart(rangeStart);
         filter.setRangeEnd(rangeEnd);
+        filter.setOnlyAvailable(onlyAvailable);
+        filter.setSort(sort);
 
         return ResponseEntity.of(Optional.of(eventService.search(filter, from, size).getContent()));
     }

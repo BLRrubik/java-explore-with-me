@@ -7,6 +7,9 @@ import ru.rubik.ewmservice.event.filter.EventFilter;
 import ru.rubik.ewmservice.event.requests.EventAdminUpdateRequest;
 import ru.rubik.ewmservice.event.requests.EventCreateRequest;
 import ru.rubik.ewmservice.event.requests.EventUpdateRequest;
+import ru.rubik.ewmservice.event_request.dto.RequestDto;
+
+import java.util.List;
 
 public interface EventService {
 
@@ -30,5 +33,11 @@ public interface EventService {
     EventFullDto publishEvent(Long eventId);
 
     EventFullDto rejectEvent(Long eventId);
+
+    List<RequestDto> getRequestsByEvent(Long userId, Long eventId);
+
+    RequestDto confirmRequest(Long userId, Long eventId, Long requestId);
+
+    RequestDto rejectRequest(Long userId, Long eventId, Long requestId);
 
 }
