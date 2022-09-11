@@ -16,12 +16,19 @@ import ru.rubik.ewmservice.event.entity.EventState;
 import ru.rubik.ewmservice.event.exception.EventNotFoundException;
 import ru.rubik.ewmservice.event.exception.EventStateException;
 import ru.rubik.ewmservice.event.filter.EventFilter;
+import ru.rubik.ewmservice.event.filter.EventSort;
 import ru.rubik.ewmservice.event.mapper.EventMapper;
 import ru.rubik.ewmservice.event.repository.EventRepository;
 import ru.rubik.ewmservice.event.requests.EventAdminUpdateRequest;
 import ru.rubik.ewmservice.event.requests.EventCreateRequest;
 import ru.rubik.ewmservice.event.requests.EventUpdateRequest;
 import ru.rubik.ewmservice.event.service.EventService;
+import ru.rubik.ewmservice.event_request.dto.RequestDto;
+import ru.rubik.ewmservice.event_request.entity.Request;
+import ru.rubik.ewmservice.event_request.entity.RequestStatus;
+import ru.rubik.ewmservice.event_request.exception.RequestNotFoundException;
+import ru.rubik.ewmservice.event_request.mapper.RequestMapper;
+import ru.rubik.ewmservice.event_request.repository.RequestRepository;
 import ru.rubik.ewmservice.user.exception.UserNotFoundException;
 import ru.rubik.ewmservice.user.repository.UserRepository;
 
@@ -38,13 +45,19 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public EventServiceImpl(EventRepository eventRepository, UserRepository userRepository, CategoryRepository categoryRepository, JdbcTemplate jdbcTemplate) {
+    public EventServiceImpl(EventRepository eventRepository,
+                            UserRepository userRepository,
+                            CategoryRepository categoryRepository,
+                            RequestRepository requestRepository,
+                            JdbcTemplate jdbcTemplate) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.requestRepository = requestRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -239,6 +252,65 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
+    @Override
+    public List<RequestDto> getRequestsByEvent(Long userId, Long eventId) {
+        if (!userRepository.findById(userId).isPresent()) {
+            throw new UserNotFoundException("User with id " + userId + "is not found");
+        }
+
+        if (!eventRepository.findById(eventId).isPresent()) {
+            throw new EventNotFoundException("Event with id " + eventId + " is not found");
+        }
+
+        if (!checkEventByUser(eventId, userId)) {
+            throw new EventNotFoundException("User with id " + userId + " dont have event with id " + eventId);
+        }
+
+        return RequestMapper.toDtos(requestRepository.findByEventId(eventId));
+    }
+
+    @Override
+    public RequestDto confirmRequest(Long userId, Long eventId, Long requestId) {
+        if (!userRepository.findById(userId).isPresent()) {
+            throw new UserNotFoundException("User with id " + userId + " is not found");
+        }
+
+        if (!eventRepository.findById(eventId).isPresent()) {
+            throw new EventNotFoundException("Event with id " + eventId + " is not found");
+        }
+
+        if (!requestRepository.findById(requestId).isPresent()) {
+            throw new RequestNotFoundException("Request with id " + requestId + " is not found");
+        }
+
+        Request request = requestRepository.findById(requestId).get();
+
+        request.setStatus(RequestStatus.APPROVED);
+
+        return RequestMapper.toDto(requestRepository.save(request));
+    }
+
+    @Override
+    public RequestDto rejectRequest(Long userId, Long eventId, Long requestId) {
+        if (!userRepository.findById(userId).isPresent()) {
+            throw new UserNotFoundException("User with id " + userId + " is not found");
+        }
+
+        if (!eventRepository.findById(eventId).isPresent()) {
+            throw new EventNotFoundException("Event with id " + eventId + " is not found");
+        }
+
+        if (!requestRepository.findById(requestId).isPresent()) {
+            throw new RequestNotFoundException("Request with id " + requestId + " is not found");
+        }
+
+        Request request = requestRepository.findById(requestId).get();
+
+        request.setStatus(RequestStatus.APPROVED);
+
+        return RequestMapper.toDto(requestRepository.save(request));
+    }
+
     private Page<Event> searchByFilters(EventFilter filter, Integer from, Integer size) {
         Set<String> params = new HashSet<>();
 
@@ -246,6 +318,16 @@ public class EventServiceImpl implements EventService {
         params.add("offset " + from);
 
         Set<String> whereClauses = new HashSet<>();
+        Set<String> orderClauses = new HashSet<>();
+
+
+        if (filter.getOnlyAvailable() != null && filter.getOnlyAvailable()) {
+            whereClauses.add(" (e.participant_limit = 0 OR" +
+                    "  e.participant_limit > (select count(*) from requests as r " +
+                    "where r.status like 'APPROVED' and r.event_id = e.event_id group by r.event_id) " +
+                    "OR (select count(*) from requests as r " +
+                    "where r.status like 'APPROVED' and r.event_id = e.event_id group by r.event_id) is null) ");
+        }
 
         if (filter.getCategories() != null && !filter.getCategories().isEmpty()) {
             List<String> categories = filter.getCategories().stream()
@@ -298,18 +380,24 @@ public class EventServiceImpl implements EventService {
                     "or e.description ILIKE '%" + filter.getText() + "%') ");
         }
 
+        if (filter.getSort() != null) {
+            orderClauses.add(
+              filter.getSort().equals(EventSort.EVENT_DATE) ? " e.event_date " : " e.event_id "
+            );
+        }
+
         String query = "select * from events as e " +
                 " where " + String.join(" and ", whereClauses) +
+                " order by " + String.join(", ", orderClauses) +
                 " " + String.join(" ", params);
+
+        System.out.println(query);
 
         var result = jdbcTemplate.query(query, this::mapRow);
 
         if (result.isEmpty()) {
             return Page.empty();
         }
-
-        //todo -> onlyAvailable
-        //todo -> sort
 
         return new PageImpl<>(result, PageRequest.of(from/size, size), result.size());
     }

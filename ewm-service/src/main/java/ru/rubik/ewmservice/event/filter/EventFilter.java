@@ -25,4 +25,5 @@ public class EventFilter {
     private Boolean onlyAvailable;
     private List<Long> users;
     private List<EventState> states;
+    private EventSort sort;
 }
