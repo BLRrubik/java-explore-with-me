@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import ru.rubik.ewmservice.event.entity.Event;
 import ru.rubik.ewmservice.event.entity.EventState;
 
-import java.util.List;
-
 public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> findByInitiatorId(Long userId, Pageable pageable);
 
@@ -17,8 +15,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Event findByIdAndState(Long eventId, EventState state);
 
     @Query(nativeQuery = true,
-    value = "select count(*) from requests as r " +
-            "left join events as e on e.event_id = r.event_id " +
-            "where r.status like 'APPROVED' and e.event_id = ?")
+            value = "select count(*) from requests as r " +
+                    "left join events as e on e.event_id = r.event_id " +
+                    "where r.status like 'APPROVED' and e.event_id = ?")
     int countApprovedRequests(Long eventId);
 }

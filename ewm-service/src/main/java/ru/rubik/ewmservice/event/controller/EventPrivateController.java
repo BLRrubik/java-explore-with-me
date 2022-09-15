@@ -27,9 +27,9 @@ public class EventPrivateController {
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getEventsByUser(@PathVariable("userId") Long userId,
                                                                @RequestParam(value = "from", defaultValue = "0")
-                                                                   Integer from,
+                                                               Integer from,
                                                                @RequestParam(value = "size", defaultValue = "10")
-                                                                   Integer size,
+                                                               Integer size,
                                                                HttpServletRequest httpRequest) {
         return ResponseEntity.of(Optional.of(
                 eventService.getEventsByUser(userId, from, size, httpRequest).getContent()
@@ -81,8 +81,8 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}/requests/{requestId}/reject")
     public ResponseEntity<RequestDto> rejectRequest(@PathVariable("userId") Long userId,
-                                                     @PathVariable("eventId") Long eventId,
-                                                     @PathVariable("requestId") Long requestId) {
+                                                    @PathVariable("eventId") Long eventId,
+                                                    @PathVariable("requestId") Long requestId) {
         return ResponseEntity.of(Optional.of(eventService.rejectRequest(userId, eventId, requestId)));
     }
 }

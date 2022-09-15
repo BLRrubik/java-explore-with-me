@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.rubik.ewmservice.event.entity.EventState;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component

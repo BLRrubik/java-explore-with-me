@@ -1,6 +1,6 @@
 package ru.rubik.ewmservice.event.exception;
 
-public class EventStateException extends RuntimeException{
+public class EventStateException extends RuntimeException {
     public EventStateException() {
     }
 

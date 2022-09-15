@@ -23,8 +23,7 @@ public class CategoryMapper {
     }
 
     public static Page<CategoryDto> convertPageToDto(Page<Category> page) {
-        if (page.isEmpty())
-        {
+        if (page.isEmpty()) {
             return Page.empty();
         }
 

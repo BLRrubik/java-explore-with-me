@@ -2,7 +2,7 @@ package ru.rubik.ewmservice.category.exception;
 
 import java.util.UUID;
 
-public class CategoryUniqException extends RuntimeException{
+public class CategoryUniqException extends RuntimeException {
     private UUID id;
 
     public CategoryUniqException() {

@@ -1,7 +1,6 @@
 package ru.rubik.ewmservice.category.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.rubik.ewmservice.category.dto.CategoryDto;
@@ -23,7 +22,7 @@ public class CategoryAdminController {
 
     @PostMapping()
     public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryCreateRequest request) {
-        return  ResponseEntity.of(Optional.of(categoryService.createCategory(request)));
+        return ResponseEntity.of(Optional.of(categoryService.createCategory(request)));
     }
 
     @PatchMapping

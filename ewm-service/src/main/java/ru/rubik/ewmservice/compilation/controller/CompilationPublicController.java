@@ -21,11 +21,11 @@ public class CompilationPublicController {
 
     @GetMapping
     public ResponseEntity<List<CompilationDto>> getAll(@RequestParam(value = "pinned", defaultValue = "false")
-                                                     Boolean pinned,
-                                                      @RequestParam(value = "from", defaultValue = "0")
-                                                     Integer from,
-                                                      @RequestParam(value = "size", defaultValue = "10")
-                                                     Integer size) {
+                                                       Boolean pinned,
+                                                       @RequestParam(value = "from", defaultValue = "0")
+                                                       Integer from,
+                                                       @RequestParam(value = "size", defaultValue = "10")
+                                                       Integer size) {
         return ResponseEntity.of(Optional.of(compilationService.getAll(pinned, from, size).getContent()));
     }
 

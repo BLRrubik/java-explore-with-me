@@ -27,25 +27,25 @@ public class EventPublicController {
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> search(@RequestParam(value = "text", required = false)
-                                                          String text,
+                                                      String text,
                                                       @RequestParam(value = "categories", required = false)
-                                                          List<Long> categories,
+                                                      List<Long> categories,
                                                       @RequestParam(value = "paid", required = false)
-                                                          Boolean paid,
+                                                      Boolean paid,
                                                       @RequestParam(value = "rangeStart", required = false)
-                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                          LocalDateTime rangeStart,
+                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                      LocalDateTime rangeStart,
                                                       @RequestParam(value = "rangeEnd", required = false)
-                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                          LocalDateTime rangeEnd,
+                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                      LocalDateTime rangeEnd,
                                                       @RequestParam(value = "sort", required = false)
-                                                          EventSort sort,
+                                                      EventSort sort,
                                                       @RequestParam(value = "onlyAvailable", required = false)
-                                                          Boolean onlyAvailable,
+                                                      Boolean onlyAvailable,
                                                       @RequestParam(value = "from", defaultValue = "0")
-                                                          Integer from,
+                                                      Integer from,
                                                       @RequestParam(value = "size", defaultValue = "10")
-                                                          Integer size,
+                                                      Integer size,
                                                       HttpServletRequest httpRequest) {
 
         EventFilter filter = new EventFilter();

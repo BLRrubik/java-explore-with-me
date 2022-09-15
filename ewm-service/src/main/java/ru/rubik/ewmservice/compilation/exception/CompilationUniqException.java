@@ -1,6 +1,6 @@
 package ru.rubik.ewmservice.compilation.exception;
 
-public class CompilationUniqException extends RuntimeException{
+public class CompilationUniqException extends RuntimeException {
     public CompilationUniqException() {
     }
 
