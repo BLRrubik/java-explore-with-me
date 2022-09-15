@@ -60,4 +60,10 @@ public class Event {
     @ManyToOne()
     @JoinColumn(name = "initiator")
     private User initiator;
+
+    @Column(name = "latitude")
+    private Float latitude;
+
+    @Column(name = "longitude")
+    private Float longitude;
 }

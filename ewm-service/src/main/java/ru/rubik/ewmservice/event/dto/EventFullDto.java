@@ -25,6 +25,17 @@ public class EventFullDto {
     private User initiator;
     private Integer views = 0;
     private Integer confirmedRequests = 0;
+    private Location location;
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Location {
+        private float latitude;
+        private float longitude;
+    }
 
     @Getter
     @Setter

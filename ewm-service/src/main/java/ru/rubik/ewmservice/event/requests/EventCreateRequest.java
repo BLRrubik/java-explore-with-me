@@ -20,5 +20,15 @@ public class EventCreateRequest {
     private Long category;
     private Integer participantLimit;
     private Boolean requestModeration;
-    //todo -> location
+    private Location location;
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class Location {
+        private float latitude;
+        private float longitude;
+    }
 }

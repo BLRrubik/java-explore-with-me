@@ -1,0 +1,2 @@
+ALTER TABLE if EXISTS events ADD COLUMN longitude float NOT NULL DEFAULT 0.0,
+    ADD COLUMN latitude float NOT NULL DEFAULT 0.0;

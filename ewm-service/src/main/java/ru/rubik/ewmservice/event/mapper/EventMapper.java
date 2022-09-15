@@ -53,7 +53,11 @@ public class EventMapper {
                         .findFirst()
                         .get()
                         .getHits(),
-                eventRepository.countApprovedRequests(event.getId())
+                eventRepository.countApprovedRequests(event.getId()),
+                new EventFullDto.Location(
+                        event.getLatitude(),
+                        event.getLongitude()
+                )
         );
     }
 
