@@ -9,16 +9,28 @@ import ru.rubik.ewmservice.user.exception.UserEmailUniqException;
 import ru.rubik.ewmservice.user.exception.UserNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ControllerAdvice
 public class UserExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ExceptionDto> userNotFound(UserNotFoundException e) {
-        return new ResponseEntity<>(new ExceptionDto(e.getMessage(), LocalDateTime.now()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ExceptionDto(
+                e.getMessage(),
+                "The required object was not found",
+                HttpStatus.NOT_FOUND,
+                null,
+                LocalDateTime.now()
+        ), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserEmailUniqException.class)
     public ResponseEntity<ExceptionDto> emailUniqError(UserEmailUniqException e) {
-        return new ResponseEntity<>(new ExceptionDto(e.getMessage(), LocalDateTime.now()), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new ExceptionDto(
+                e.getMessage(),
+                "For the requested operation the conditions are not met.",
+                HttpStatus.CONFLICT,
+                List.of(),
+                LocalDateTime.now()), HttpStatus.CONFLICT);
     }
 }

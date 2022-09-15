@@ -9,16 +9,30 @@ import ru.rubik.ewmservice.event_request.exception.RequestNotFoundException;
 import ru.rubik.ewmservice.exception.ExceptionDto;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @ControllerAdvice
 public class RequestExceptionHandler {
     @ExceptionHandler(RequestNotFoundException.class)
     public ResponseEntity<ExceptionDto> requestNotFound(RequestNotFoundException e) {
-        return new ResponseEntity<>(new ExceptionDto(e.getMessage(), LocalDateTime.now()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ExceptionDto(
+                e.getMessage(),
+                "The required object was not found",
+                HttpStatus.NOT_FOUND,
+                null,
+                LocalDateTime.now()
+        ), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(RequestIllegalStateException.class)
-    public ResponseEntity<ExceptionDto> requestNotFound(RequestIllegalStateException e) {
-        return new ResponseEntity<>(new ExceptionDto(e.getMessage(), LocalDateTime.now()), HttpStatus.CONFLICT);
+    public ResponseEntity<ExceptionDto> illegalStateError(RequestIllegalStateException e) {
+        return new ResponseEntity<>(new ExceptionDto(
+                e.getMessage(),
+                "For the requested operation the conditions are not met.",
+                HttpStatus.CONFLICT,
+                List.of(),
+                LocalDateTime.now()
+        ), HttpStatus.CONFLICT);
     }
 }
