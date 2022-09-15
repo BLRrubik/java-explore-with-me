@@ -21,6 +21,7 @@ public class BaseClient {
     protected ResponseEntity<Object[]> get(String path) {
         return makeAndSendGet(HttpMethod.GET, path);
     }
+
     protected <T> ResponseEntity<StatsDto> post(String path, T body) {
         return makeAndSendPost(HttpMethod.POST, path, body);
     }
@@ -45,7 +46,7 @@ public class BaseClient {
     }
 
     private <T> ResponseEntity<StatsDto> makeAndSendPost(HttpMethod method, String path,
-                                                          @Nullable T body) {
+                                                         @Nullable T body) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
         ResponseEntity<StatsDto> statsServerResponse;
@@ -70,13 +71,13 @@ public class BaseClient {
     }
 
     private static <T> ResponseEntity<T> prepareResponse(ResponseEntity<T> response) {
-        if(response.getStatusCode().is2xxSuccessful()) {
+        if (response.getStatusCode().is2xxSuccessful()) {
             return response;
         }
 
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
 
-        if(response.hasBody()) {
+        if (response.hasBody()) {
             return responseBuilder.body(response.getBody());
         }
 

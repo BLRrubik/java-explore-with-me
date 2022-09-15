@@ -2,14 +2,11 @@ package ru.rubik.ewmservice.event.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 import ru.rubik.ewmservice.category.exception.CategoryNotFoundException;
 import ru.rubik.ewmservice.category.repository.CategoryRepository;
-import ru.rubik.ewmservice.client.dto.StatsDto;
 import ru.rubik.ewmservice.client.event.EventClient;
 import ru.rubik.ewmservice.event.dto.EventFullDto;
 import ru.rubik.ewmservice.event.dto.EventShortDto;
@@ -401,8 +398,7 @@ public class EventServiceImpl implements EventService {
                     filter.getRangeStart().toString().split("T")[1];
 
             whereClauses.add("date(e.event_date)>'" + timestamp + "'");
-        }
-        else {
+        } else {
             String timestamp = LocalDateTime.now().toString().split("T")[0] + " " +
                     LocalDateTime.now().toString().split("T")[1];
 
@@ -437,17 +433,18 @@ public class EventServiceImpl implements EventService {
 
         if (filter.getSort() != null) {
             orderClauses.add(
-              filter.getSort().equals(EventSort.EVENT_DATE) ? " e.event_date " : " e.event_id "
+                    filter.getSort().equals(EventSort.EVENT_DATE) ? " e.event_date " : " e.event_id "
             );
         }
 
         String query = "select * from events as e " +
                 " where " + String.join(" and ", whereClauses) +
-                (!orderClauses.isEmpty() ? " order by " + String.join(", ", orderClauses):"");
+                (!orderClauses.isEmpty() ? " order by " + String.join(", ", orderClauses) : "");
 
 
         return jdbcTemplate.query(query, this::mapRow);
     }
+
     private Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         Event event = new Event();
         event.setId(rs.getLong("event_id"));

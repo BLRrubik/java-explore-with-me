@@ -3,7 +3,6 @@ package ru.rubik.ewmservice.compilation.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.rubik.ewmservice.category.exception.CategoryNotFoundException;
 import ru.rubik.ewmservice.compilation.dto.CompilationDto;
@@ -16,7 +15,6 @@ import ru.rubik.ewmservice.event.entity.Event;
 import ru.rubik.ewmservice.event.exception.EventNotFoundException;
 import ru.rubik.ewmservice.event.repository.EventRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 

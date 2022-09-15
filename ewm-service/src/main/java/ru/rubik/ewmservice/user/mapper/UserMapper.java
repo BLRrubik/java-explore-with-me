@@ -25,8 +25,7 @@ public class UserMapper {
 
     public static Page<UserDto> convertPageToDto(Page<User> page) {
 
-        if (page.isEmpty())
-        {
+        if (page.isEmpty()) {
             return Page.empty();
         }
 

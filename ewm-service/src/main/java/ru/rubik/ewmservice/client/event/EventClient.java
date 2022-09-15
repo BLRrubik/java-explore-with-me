@@ -1,21 +1,18 @@
 package ru.rubik.ewmservice.client.event;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 import ru.rubik.ewmservice.client.BaseClient;
 import ru.rubik.ewmservice.client.dto.StatsDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,8 +34,8 @@ public class EventClient extends BaseClient {
     }
 
     public List<StatsDto> getStats(List<String> uris) {
-        long start = 1L;
-        long end = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+        String start = LocalDateTime.now().minusDays(10L).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         String path = "stats?start=" + start + "&end=" + end + "&uris=" + String.join("&uris=", uris);
 

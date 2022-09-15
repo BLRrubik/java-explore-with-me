@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CategoryNotFoundException extends RuntimeException{
+public class CategoryNotFoundException extends RuntimeException {
     private UUID id;
 
     public CategoryNotFoundException() {

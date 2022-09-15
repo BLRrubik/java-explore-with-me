@@ -4,8 +4,6 @@ import org.springframework.data.domain.Page;
 import ru.rubik.ewmservice.compilation.dto.CompilationDto;
 import ru.rubik.ewmservice.compilation.requests.CompilationCreateRequest;
 
-import java.util.List;
-
 public interface CompilationService {
     Page<CompilationDto> getAll(Boolean pinned, Integer from, Integer size);
 

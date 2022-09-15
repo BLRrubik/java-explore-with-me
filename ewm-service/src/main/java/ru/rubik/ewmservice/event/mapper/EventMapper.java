@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
-import ru.rubik.ewmservice.category.dto.CategoryDto;
-import ru.rubik.ewmservice.category.entity.Category;
 import ru.rubik.ewmservice.client.event.EventClient;
 import ru.rubik.ewmservice.event.dto.EventFullDto;
 import ru.rubik.ewmservice.event.dto.EventShortDto;
@@ -48,7 +46,7 @@ public class EventMapper {
                         event.getInitiator().getId(),
                         event.getInitiator().getName()
                 ),
-                eventClient.getStats(List.of("/events/"+event.getId())).stream()
+                eventClient.getStats(List.of("/events/" + event.getId())).stream()
                         .filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString()))
                         .findFirst()
                         .get()
@@ -82,7 +80,7 @@ public class EventMapper {
                         event.getInitiator().getId(),
                         event.getInitiator().getName()
                 ),
-                eventClient.getStats(List.of("/events/"+event.getId())).stream()
+                eventClient.getStats(List.of("/events/" + event.getId())).stream()
                         .filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString()))
                         .findFirst()
                         .get()
@@ -98,8 +96,7 @@ public class EventMapper {
     }
 
     public static Page<EventFullDto> convertPageToFullDto(Page<Event> page) {
-        if (page.isEmpty())
-        {
+        if (page.isEmpty()) {
             return Page.empty();
         }
 
@@ -107,8 +104,7 @@ public class EventMapper {
     }
 
     public static Page<EventShortDto> convertPageToShortDto(Page<Event> page) {
-        if (page.isEmpty())
-        {
+        if (page.isEmpty()) {
             return Page.empty();
         }
 

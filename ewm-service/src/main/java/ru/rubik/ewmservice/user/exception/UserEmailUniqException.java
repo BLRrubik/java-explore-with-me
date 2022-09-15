@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UserEmailUniqException extends RuntimeException{
+public class UserEmailUniqException extends RuntimeException {
     private UUID id;
 
     public UserEmailUniqException() {

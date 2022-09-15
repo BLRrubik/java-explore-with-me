@@ -27,21 +27,21 @@ public class EventAdminController {
 
     @GetMapping
     public ResponseEntity<List<EventFullDto>> searchByAdmin(@RequestParam(value = "users", required = false)
-                                                                List<Long> users,
+                                                            List<Long> users,
                                                             @RequestParam(value = "states", required = false)
-                                                                List<EventState> states,
+                                                            List<EventState> states,
                                                             @RequestParam(value = "categories", required = false)
-                                                                List<Long> categories,
+                                                            List<Long> categories,
                                                             @RequestParam(value = "rangeStart", required = false)
-                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                                LocalDateTime rangeStart,
+                                                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                            LocalDateTime rangeStart,
                                                             @RequestParam(value = "rangeEnd", required = false)
-                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                                LocalDateTime rangeEnd,
+                                                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                            LocalDateTime rangeEnd,
                                                             @RequestParam(value = "from", defaultValue = "0")
-                                                                Integer from,
+                                                            Integer from,
                                                             @RequestParam(value = "size", defaultValue = "10")
-                                                                Integer size,
+                                                            Integer size,
                                                             HttpServletRequest httpRequest) {
 
         EventFilter filter = new EventFilter();

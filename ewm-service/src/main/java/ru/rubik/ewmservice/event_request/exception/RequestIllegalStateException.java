@@ -1,6 +1,6 @@
 package ru.rubik.ewmservice.event_request.exception;
 
-public class RequestIllegalStateException extends RuntimeException{
+public class RequestIllegalStateException extends RuntimeException {
     public RequestIllegalStateException() {
     }
 

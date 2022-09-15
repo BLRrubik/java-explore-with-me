@@ -1,6 +1,6 @@
 package ru.rubik.ewmservice.compilation.exception;
 
-public class CompilationNotFoundException extends RuntimeException{
+public class CompilationNotFoundException extends RuntimeException {
     public CompilationNotFoundException() {
     }
 

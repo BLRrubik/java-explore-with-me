@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import ru.rubik.ewmservice.compilation.dto.CompilationDto;
 import ru.rubik.ewmservice.compilation.entity.Compilation;
-import ru.rubik.ewmservice.event.entity.Event;
 import ru.rubik.ewmservice.event.mapper.EventMapper;
 
 import java.util.List;
@@ -29,8 +28,7 @@ public class CompilationMapper {
     }
 
     public static Page<CompilationDto> convertPageToDto(Page<Compilation> page) {
-        if (page.isEmpty())
-        {
+        if (page.isEmpty()) {
             return Page.empty();
         }
 

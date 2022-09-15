@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UserNotFoundException extends RuntimeException{
+public class UserNotFoundException extends RuntimeException {
     private UUID id;
 
     public UserNotFoundException() {
