@@ -10,6 +10,7 @@ import ru.rubik.ewmservice.event.filter.EventFilter;
 import ru.rubik.ewmservice.event.filter.EventSort;
 import ru.rubik.ewmservice.event.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,8 @@ public class EventPublicController {
                                                       @RequestParam(value = "from", defaultValue = "0")
                                                           Integer from,
                                                       @RequestParam(value = "size", defaultValue = "10")
-                                                          Integer size) {
+                                                          Integer size,
+                                                      HttpServletRequest httpRequest) {
 
         EventFilter filter = new EventFilter();
         filter.setText(text);
@@ -55,11 +57,12 @@ public class EventPublicController {
         filter.setOnlyAvailable(onlyAvailable);
         filter.setSort(sort);
 
-        return ResponseEntity.of(Optional.of(eventService.search(filter, from, size).getContent()));
+        return ResponseEntity.of(Optional.of(eventService.search(filter, from, size, httpRequest).getContent()));
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getById(@PathVariable("eventId") Long eventId) {
-        return ResponseEntity.of(Optional.of(eventService.getEventById(eventId)));
+    public ResponseEntity<EventFullDto> getById(@PathVariable("eventId") Long eventId,
+                                                HttpServletRequest httpRequest) {
+        return ResponseEntity.of(Optional.of(eventService.getEventById(eventId, httpRequest)));
     }
 }

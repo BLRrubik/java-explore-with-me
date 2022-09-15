@@ -39,6 +39,8 @@ public class StatisticServiceImpl implements StatisticService {
     public List<ViewStats> getStats(Long startSeconds, Long endSeconds, List<String> uris, Boolean unique) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+        System.out.println(uris.toString());
+
         String start = LocalDateTime.ofEpochSecond(startSeconds, 0, ZoneOffset.UTC)
                 .toString().split("T")[0] + " " +
                 LocalDateTime.ofEpochSecond(startSeconds, 0, ZoneOffset.UTC)
@@ -49,14 +51,11 @@ public class StatisticServiceImpl implements StatisticService {
                 LocalDateTime.ofEpochSecond(endSeconds, 0, ZoneOffset.UTC)
                         .toString().split("T")[1];
 
-        System.out.println(start + " --- " + end);
-
         List<ViewStats> hits = new ArrayList<>();
 
         for (String uri: uris) {
-            System.out.println("uri -- " +uri);
-            String app = statisticRepository.getAppNameByUri(uri);
-            System.out.println("app - " + app);
+            System.out.println(uri);
+            String app = "ewm-service";
             Integer count = unique ? statisticRepository.getStatisticDistinct(start, end, app, uri) :
                     statisticRepository.getAllStatistic(start, end, app, uri);
 
@@ -66,6 +65,8 @@ public class StatisticServiceImpl implements StatisticService {
                     count
             ));
         }
+
+        hits.forEach(stat-> System.out.println(stat.getUri() + ", " + stat.getApp() + ", " + stat.getHits()));
 
         return hits;
     }

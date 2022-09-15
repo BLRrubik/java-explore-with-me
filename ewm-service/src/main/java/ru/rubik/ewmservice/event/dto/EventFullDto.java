@@ -1,9 +1,6 @@
 package ru.rubik.ewmservice.event.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.rubik.ewmservice.event.entity.EventState;
 
 import java.time.LocalDateTime;
@@ -26,9 +23,37 @@ public class EventFullDto {
     private Integer participantLimit;
     private Category category;
     private User initiator;
+    private Integer views = 0;
     //todo -> confirmedRequests
-    //todo -> views
 
+
+    public EventFullDto(Long id,
+                        String title,
+                        String description,
+                        String annotation,
+                        LocalDateTime createdOn,
+                        LocalDateTime eventDate,
+                        LocalDateTime publishedOn,
+                        Boolean paid,
+                        EventState state,
+                        Boolean requestModeration,
+                        Integer participantLimit,
+                        Category category,
+                        User initiator) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.annotation = annotation;
+        this.createdOn = createdOn;
+        this.eventDate = eventDate;
+        this.publishedOn = publishedOn;
+        this.paid = paid;
+        this.state = state;
+        this.requestModeration = requestModeration;
+        this.participantLimit = participantLimit;
+        this.category = category;
+        this.initiator = initiator;
+    }
 
     @Getter
     @Setter

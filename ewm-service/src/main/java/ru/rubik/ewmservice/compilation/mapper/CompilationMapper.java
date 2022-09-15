@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageImpl;
 import ru.rubik.ewmservice.compilation.dto.CompilationDto;
 import ru.rubik.ewmservice.compilation.entity.Compilation;
 import ru.rubik.ewmservice.event.entity.Event;
+import ru.rubik.ewmservice.event.mapper.EventMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ public class CompilationMapper {
                 compilation.getTitle(),
                 compilation.getPinned(),
                 compilation.getEvents().stream()
-                        .map(Event::getId)
+                        .map(EventMapper::toShortDto)
                         .collect(Collectors.toList())
         );
     }

@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 import ru.rubik.ewmservice.category.exception.CategoryNotFoundException;
 import ru.rubik.ewmservice.category.repository.CategoryRepository;
+import ru.rubik.ewmservice.client.dto.StatsDto;
+import ru.rubik.ewmservice.client.event.EventClient;
 import ru.rubik.ewmservice.event.dto.EventFullDto;
 import ru.rubik.ewmservice.event.dto.EventShortDto;
 import ru.rubik.ewmservice.event.entity.Event;
@@ -32,12 +34,11 @@ import ru.rubik.ewmservice.event_request.repository.RequestRepository;
 import ru.rubik.ewmservice.user.exception.UserNotFoundException;
 import ru.rubik.ewmservice.user.repository.UserRepository;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,54 +48,132 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final EventClient eventClient;
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
                             UserRepository userRepository,
                             CategoryRepository categoryRepository,
                             RequestRepository requestRepository,
-                            JdbcTemplate jdbcTemplate) {
+                            JdbcTemplate jdbcTemplate, EventClient eventClient) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.requestRepository = requestRepository;
         this.jdbcTemplate = jdbcTemplate;
+        this.eventClient = eventClient;
     }
 
     @Override
-    public Page<EventShortDto> search(EventFilter filter, Integer from, Integer size) {
-        return EventMapper.convertPageToShortDto(searchByFilters(filter, from, size));
+    public Page<EventShortDto> search(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest) {
+        Page<EventShortDto> pageDto = EventMapper.convertPageToShortDto(searchByFilters(filter, from, size));
+
+        List<String> uris = pageDto.stream()
+                .map(EventShortDto::getId)
+                .map(id -> "/events/" + id)
+                .collect(Collectors.toList());
+
+        List<StatsDto> views = eventClient.getStats(httpRequest, uris);
+
+        pageDto.stream()
+                .forEach(dto -> {
+                    int viewCount = views.stream()
+                            .filter(stat -> stat.getUri().split("/")[2].equals(dto.getId().toString()))
+                            .findFirst()
+                            .get()
+                            .getHits();
+
+                    dto.setViews(viewCount);
+                });
+
+        return pageDto;
     }
 
     @Override
-    public Page<EventFullDto> searchByAdmin(EventFilter filter, Integer from, Integer size) {
-        return EventMapper.convertPageToFullDto(searchByFilters(filter, from, size));
+    public Page<EventFullDto> searchByAdmin(EventFilter filter,
+                                            Integer from,
+                                            Integer size,
+                                            HttpServletRequest httpRequest) {
+
+        Page<EventFullDto> pageDto = EventMapper.convertPageToFullDto(searchByFilters(filter, from, size));
+
+        List<String> uris = pageDto.stream()
+                .map(EventFullDto::getId)
+                .map(id -> "/events/" + id)
+                .collect(Collectors.toList());
+
+        List<StatsDto> views = eventClient.getStats(httpRequest, uris);
+
+        pageDto.stream()
+                .forEach(dto -> {
+                    int viewCount = views.stream()
+                            .filter(stat -> stat.getUri().split("/")[2].equals(dto.getId().toString()))
+                            .findFirst()
+                            .get()
+                            .getHits();
+
+                    dto.setViews(viewCount);
+                });
+
+        return pageDto;
     }
 
     @Override
-    public EventFullDto getEventById(Long eventId) {
+    public EventFullDto getEventById(Long eventId, HttpServletRequest httpRequest) {
         if (!eventRepository.findById(eventId).isPresent()) {
             throw new EventNotFoundException("Event with id " + eventId + " is not found");
         }
 
-        //todo -> request to stats
+        eventClient.hit(httpRequest);
+        int views = eventClient.getStats(httpRequest, List.of("/events/" + eventId)).stream()
+                .filter(stats -> stats.getUri().equals("/events/" + eventId))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get();
 
-        return EventMapper.toFullDto(eventRepository.findByIdAndState(eventId, EventState.PUBLISHED));
+        EventFullDto dto = EventMapper.toFullDto(eventRepository.findByIdAndState(eventId, EventState.PUBLISHED));
+
+        dto.setViews(views);
+
+        return dto;
     }
 
     @Override
-    public Page<EventShortDto> getEventsByUser(Long userId, Integer from, Integer size) {
+    public Page<EventShortDto> getEventsByUser(Long userId,
+                                               Integer from,
+                                               Integer size,
+                                               HttpServletRequest httpRequest) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
 
         Page<Event> events = eventRepository.findByInitiatorId(userId, PageRequest.of(from / size, size));
 
-        return EventMapper.convertPageToShortDto(events);
+        Page<EventShortDto> pageDto = EventMapper.convertPageToShortDto(events);
+
+        List<String> uris = pageDto.stream()
+                .map(EventShortDto::getId)
+                .map(id -> "/events/" + id)
+                .collect(Collectors.toList());
+
+        List<StatsDto> views = eventClient.getStats(httpRequest, uris);
+
+        pageDto.stream()
+                .forEach(dto -> {
+                    int viewCount = views.stream()
+                            .filter(stat -> stat.getUri().split("/")[2].equals(dto.getId().toString()))
+                            .findFirst()
+                            .get()
+                            .getHits();
+
+                    dto.setViews(viewCount);
+                });
+
+        return pageDto;
     }
 
     @Override
-    public EventFullDto updateEventByUser(Long userId, EventUpdateRequest request) {
+    public EventFullDto updateEventByUser(Long userId, EventUpdateRequest request, HttpServletRequest httpRequest) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -122,11 +201,22 @@ public class EventServiceImpl implements EventService {
         event.setParticipantLimit(request.getParticipantLimit());
         event.setTitle(request.getTitle());
 
-        return EventMapper.toFullDto(eventRepository.save(event));
+        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
+
+        dto.setViews(eventClient.getStats(httpRequest,
+                        List.of("users/" + userId + "/events/" + request.getEventId())).stream()
+                .filter(stats -> stats.getUri().equals("users/" + userId + "/events/" + request.getEventId()))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get());
+
+        return dto;
     }
 
     @Override
-    public EventFullDto updateEventByAdmin(Long eventId, EventAdminUpdateRequest request) {
+    public EventFullDto updateEventByAdmin(Long eventId,
+                                           EventAdminUpdateRequest request,
+                                           HttpServletRequest httpRequest) {
         if (!categoryRepository.findById(request.getCategory()).isPresent()) {
             throw new CategoryNotFoundException("Category with id " + request.getCategory() + " is not found");
         }
@@ -146,11 +236,21 @@ public class EventServiceImpl implements EventService {
         event.setTitle(request.getTitle());
         event.setRequestModeration(request.getRequestModeration());
 
+        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
+
+        dto.setViews(eventClient.getStats(httpRequest, List.of("admin/events/" + eventId)).stream()
+                .filter(stats -> stats.getUri().equals("admin/events/" + eventId))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get());
+
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
     @Override
-    public EventFullDto createEventByUser(Long userId, EventCreateRequest request) {
+    public EventFullDto createEventByUser(Long userId,
+                                          EventCreateRequest request,
+                                          HttpServletRequest httpRequest) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -172,11 +272,21 @@ public class EventServiceImpl implements EventService {
         event.setInitiator(userRepository.findById(userId).get());
         event.setState(EventState.PENDING);
 
-        return EventMapper.toFullDto(eventRepository.save(event));
+        Event resultEvent = eventRepository.save(event);
+
+        EventFullDto dto = EventMapper.toFullDto(resultEvent);
+
+        dto.setViews(eventClient.getStats(httpRequest, List.of("/events/" + resultEvent.getId())).stream()
+                .filter(stats -> stats.getUri().equals("/events/" + resultEvent.getId()))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get());
+
+        return dto;
     }
 
     @Override
-    public EventFullDto getEventOfUserById(Long userId, Long eventId) {
+    public EventFullDto getEventOfUserById(Long userId, Long eventId, HttpServletRequest httpRequest) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -185,11 +295,24 @@ public class EventServiceImpl implements EventService {
             throw new EventNotFoundException("User with id " + userId + " dont have event with id " + eventId);
         }
 
-        return EventMapper.toFullDto(eventRepository.findByIdAndInitiatorId(eventId, userId));
+        EventFullDto dto = EventMapper.toFullDto(eventRepository.findByIdAndInitiatorId(eventId, userId));
+
+        dto.setViews(eventClient.getStats(httpRequest,
+                        List.of("users/" + userId + "/events/" + eventId)).stream()
+                .filter(stats -> stats.getUri().equals("users/" + userId + "/events/" + eventId))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get());
+
+        return dto;
     }
 
     @Override
-    public EventFullDto cancelEventByUser(Long userId, Long eventId, EventUpdateRequest request) {
+    public EventFullDto cancelEventByUser(Long userId,
+                                          Long eventId,
+                                          EventUpdateRequest request,
+                                          HttpServletRequest httpRequest) {
+
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -221,11 +344,19 @@ public class EventServiceImpl implements EventService {
         event.setTitle(request.getTitle());
         event.setState(EventState.CANCELED);
 
-        return EventMapper.toFullDto(eventRepository.save(event));
+        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
+
+        dto.setViews(eventClient.getStats(httpRequest, List.of("users/" + userId + "/events/" + eventId)).stream()
+                .filter(stats -> stats.getUri().equals("users/" + userId + "/events/" + eventId))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get());
+
+        return dto;
     }
 
     @Override
-    public EventFullDto publishEvent(Long eventId) {
+    public EventFullDto publishEvent(Long eventId, HttpServletRequest httpRequest) {
         if (!eventRepository.findById(eventId).isPresent()) {
             throw new EventNotFoundException("Event with id " + eventId + " is not found");
         }
@@ -235,11 +366,19 @@ public class EventServiceImpl implements EventService {
         event.setState(EventState.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
 
-        return EventMapper.toFullDto(eventRepository.save(event));
+        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
+
+        dto.setViews(eventClient.getStats(httpRequest, List.of("admin/events/" + eventId + "/publish")).stream()
+                .filter(stats -> stats.getUri().equals("admin/events/" + eventId + "/publish"))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get());
+
+        return dto;
     }
 
     @Override
-    public EventFullDto rejectEvent(Long eventId) {
+    public EventFullDto rejectEvent(Long eventId, HttpServletRequest httpRequest) {
         if (!eventRepository.findById(eventId).isPresent()) {
             throw new EventNotFoundException("Event with id " + eventId + " is not found");
         }
@@ -249,7 +388,15 @@ public class EventServiceImpl implements EventService {
         event.setState(EventState.CANCELED);
         event.setPublishedOn(null);
 
-        return EventMapper.toFullDto(eventRepository.save(event));
+        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
+
+        dto.setViews(eventClient.getStats(httpRequest, List.of("admin/events/" + eventId + "/reject")).stream()
+                .filter(stats -> stats.getUri().equals("admin/events/" + eventId + "/reject"))
+                .findFirst()
+                .map(StatsDto::getHits)
+                .get());
+
+        return dto;
     }
 
     @Override
@@ -388,7 +535,7 @@ public class EventServiceImpl implements EventService {
 
         String query = "select * from events as e " +
                 " where " + String.join(" and ", whereClauses) +
-                " order by " + String.join(", ", orderClauses) +
+                (!orderClauses.isEmpty() ? " order by " + String.join(", ", orderClauses):"") +
                 " " + String.join(" ", params);
 
         System.out.println(query);

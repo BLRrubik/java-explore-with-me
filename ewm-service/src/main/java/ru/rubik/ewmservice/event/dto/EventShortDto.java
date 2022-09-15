@@ -1,9 +1,6 @@
 package ru.rubik.ewmservice.event.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -19,9 +16,25 @@ public class EventShortDto {
     private Boolean paid;
     private Category category;
     private User initiator;
+    private Integer views = 0;
     //todo -> confirmedRequests
-    //todo -> views
 
+
+    public EventShortDto(Long id,
+                         String title,
+                         String annotation,
+                         LocalDateTime eventDate,
+                         Boolean paid,
+                         Category category,
+                         User initiator) {
+        this.id = id;
+        this.title = title;
+        this.annotation = annotation;
+        this.eventDate = eventDate;
+        this.paid = paid;
+        this.category = category;
+        this.initiator = initiator;
+    }
 
     @Getter
     @Setter

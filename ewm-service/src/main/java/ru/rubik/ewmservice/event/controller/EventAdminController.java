@@ -10,6 +10,7 @@ import ru.rubik.ewmservice.event.filter.EventFilter;
 import ru.rubik.ewmservice.event.requests.EventAdminUpdateRequest;
 import ru.rubik.ewmservice.event.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,8 @@ public class EventAdminController {
                                                             @RequestParam(value = "from", defaultValue = "0")
                                                                 Integer from,
                                                             @RequestParam(value = "size", defaultValue = "10")
-                                                                Integer size) {
+                                                                Integer size,
+                                                            HttpServletRequest httpRequest) {
 
         EventFilter filter = new EventFilter();
         filter.setUsers(users);
@@ -49,22 +51,25 @@ public class EventAdminController {
         filter.setRangeStart(rangeStart);
         filter.setRangeEnd(rangeEnd);
 
-        return ResponseEntity.of(Optional.of(eventService.searchByAdmin(filter, from, size).getContent()));
+        return ResponseEntity.of(Optional.of(eventService.searchByAdmin(filter, from, size, httpRequest).getContent()));
     }
 
     @PutMapping("/{eventId}")
     public ResponseEntity<EventFullDto> updateEventByAdmin(@PathVariable("eventId") Long eventId,
-                                                           @RequestBody EventAdminUpdateRequest request) {
-        return ResponseEntity.of(Optional.of(eventService.updateEventByAdmin(eventId, request)));
+                                                           @RequestBody EventAdminUpdateRequest request,
+                                                           HttpServletRequest httpRequest) {
+        return ResponseEntity.of(Optional.of(eventService.updateEventByAdmin(eventId, request, httpRequest)));
     }
 
     @PatchMapping("/{eventId}/publish")
-    public ResponseEntity<EventFullDto> publishEvent(@PathVariable("eventId") Long eventId) {
-        return ResponseEntity.of(Optional.of(eventService.publishEvent(eventId)));
+    public ResponseEntity<EventFullDto> publishEvent(@PathVariable("eventId") Long eventId,
+                                                     HttpServletRequest httpRequest) {
+        return ResponseEntity.of(Optional.of(eventService.publishEvent(eventId, httpRequest)));
     }
 
     @PatchMapping("/{eventId}/reject")
-    public ResponseEntity<EventFullDto> rejectEvent(@PathVariable("eventId") Long eventId) {
-        return ResponseEntity.of(Optional.of(eventService.rejectEvent(eventId)));
+    public ResponseEntity<EventFullDto> rejectEvent(@PathVariable("eventId") Long eventId,
+                                                    HttpServletRequest httpRequest) {
+        return ResponseEntity.of(Optional.of(eventService.rejectEvent(eventId, httpRequest)));
     }
 }
