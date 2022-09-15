@@ -11,6 +11,9 @@ import ru.yandex.ewmservice.event.requests.EventAdminUpdateRequest;
 import ru.yandex.ewmservice.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,10 +42,9 @@ public class EventAdminController {
                                                             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                             LocalDateTime rangeEnd,
                                                             @RequestParam(value = "from", defaultValue = "0")
-                                                            Integer from,
+                                                            @PositiveOrZero Integer from,
                                                             @RequestParam(value = "size", defaultValue = "10")
-                                                            Integer size,
-                                                            HttpServletRequest httpRequest) {
+                                                            @Positive Integer size) {
 
         EventFilter filter = new EventFilter();
         filter.setUsers(users);
@@ -51,25 +53,22 @@ public class EventAdminController {
         filter.setRangeStart(rangeStart);
         filter.setRangeEnd(rangeEnd);
 
-        return ResponseEntity.of(Optional.of(eventService.searchByAdmin(filter, from, size, httpRequest)));
+        return ResponseEntity.of(Optional.of(eventService.searchByAdmin(filter, from, size)));
     }
 
     @PutMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> updateEventByAdmin(@PathVariable("eventId") Long eventId,
-                                                           @RequestBody EventAdminUpdateRequest request,
-                                                           HttpServletRequest httpRequest) {
-        return ResponseEntity.of(Optional.of(eventService.updateEventByAdmin(eventId, request, httpRequest)));
+    public ResponseEntity<EventFullDto> updateEventByAdmin(@PathVariable("eventId") @Positive Long eventId,
+                                                           @RequestBody @Valid EventAdminUpdateRequest request) {
+        return ResponseEntity.of(Optional.of(eventService.updateEventByAdmin(eventId, request)));
     }
 
     @PatchMapping("/{eventId}/publish")
-    public ResponseEntity<EventFullDto> publishEvent(@PathVariable("eventId") Long eventId,
-                                                     HttpServletRequest httpRequest) {
-        return ResponseEntity.of(Optional.of(eventService.publishEvent(eventId, httpRequest)));
+    public ResponseEntity<EventFullDto> publishEvent(@PathVariable("eventId") @Positive Long eventId) {
+        return ResponseEntity.of(Optional.of(eventService.publishEvent(eventId)));
     }
 
     @PatchMapping("/{eventId}/reject")
-    public ResponseEntity<EventFullDto> rejectEvent(@PathVariable("eventId") Long eventId,
-                                                    HttpServletRequest httpRequest) {
-        return ResponseEntity.of(Optional.of(eventService.rejectEvent(eventId, httpRequest)));
+    public ResponseEntity<EventFullDto> rejectEvent(@PathVariable("eventId") @Positive Long eventId) {
+        return ResponseEntity.of(Optional.of(eventService.rejectEvent(eventId)));
     }
 }

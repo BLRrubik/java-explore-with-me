@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.ewmservice.compilation.dto.CompilationDto;
 import ru.yandex.ewmservice.compilation.service.CompilationService;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,16 +24,16 @@ public class CompilationPublicController {
 
     @GetMapping
     public ResponseEntity<List<CompilationDto>> getAll(@RequestParam(value = "pinned", defaultValue = "false")
-                                                       Boolean pinned,
+                                                       @NotNull  Boolean pinned,
                                                        @RequestParam(value = "from", defaultValue = "0")
-                                                       Integer from,
+                                                       @PositiveOrZero Integer from,
                                                        @RequestParam(value = "size", defaultValue = "10")
-                                                       Integer size) {
+                                                       @Positive Integer size) {
         return ResponseEntity.of(Optional.of(compilationService.getAll(pinned, from, size).getContent()));
     }
 
     @GetMapping("/{compilationId}")
-    public ResponseEntity<CompilationDto> getById(@PathVariable("compilationId") Long compilationId) {
+    public ResponseEntity<CompilationDto> getById(@PathVariable("compilationId") @Positive Long compilationId) {
         return ResponseEntity.of(Optional.of(compilationService.getById(compilationId)));
     }
 }

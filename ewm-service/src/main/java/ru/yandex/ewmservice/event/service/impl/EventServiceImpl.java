@@ -62,7 +62,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> search(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest) {
+    public List<EventShortDto> search(EventFilter filter, Integer from, Integer size) {
         List<EventShortDto> pageDto = EventMapper.toShortDtos(searchByFilters(filter, from, size));
 
         if (filter.getSort().equals(EventSort.EVENT_DATE)) {
@@ -91,8 +91,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventFullDto> searchByAdmin(EventFilter filter,
                                             Integer from,
-                                            Integer size,
-                                            HttpServletRequest httpRequest) {
+                                            Integer size) {
 
         List<EventFullDto> pageDto = EventMapper.toFullDtos(searchByFilters(filter, from, size));
 
@@ -128,10 +127,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<EventShortDto> getEventsByUser(Long userId,
-                                               Integer from,
-                                               Integer size,
-                                               HttpServletRequest httpRequest) {
+    public Page<EventShortDto> getEventsByUser(Long userId, Integer from, Integer size) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -142,7 +138,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto updateEventByUser(Long userId, EventUpdateRequest request, HttpServletRequest httpRequest) {
+    public EventFullDto updateEventByUser(Long userId, EventUpdateRequest request) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -174,9 +170,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto updateEventByAdmin(Long eventId,
-                                           EventAdminUpdateRequest request,
-                                           HttpServletRequest httpRequest) {
+    public EventFullDto updateEventByAdmin(Long eventId, EventAdminUpdateRequest request) {
         if (!categoryRepository.findById(request.getCategory()).isPresent()) {
             throw new CategoryNotFoundException("Category with id " + request.getCategory() + " is not found");
         }
@@ -195,14 +189,14 @@ public class EventServiceImpl implements EventService {
         event.setParticipantLimit(request.getParticipantLimit());
         event.setTitle(request.getTitle());
         event.setRequestModeration(request.getRequestModeration());
+        event.setLatitude(request.getLocation().getLatitude());
+        event.setLongitude(request.getLocation().getLongitude());
 
         return EventMapper.toFullDto(eventRepository.save(event));
     }
 
     @Override
-    public EventFullDto createEventByUser(Long userId,
-                                          EventCreateRequest request,
-                                          HttpServletRequest httpRequest) {
+    public EventFullDto createEventByUser(Long userId, EventCreateRequest request) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -223,12 +217,14 @@ public class EventServiceImpl implements EventService {
         event.setTitle(request.getTitle());
         event.setInitiator(userRepository.findById(userId).get());
         event.setState(EventState.PENDING);
+        event.setLatitude(request.getLocation().getLatitude());
+        event.setLongitude(request.getLocation().getLongitude());
 
-        return EventMapper.toFullDto(event);
+        return EventMapper.toFullDto(eventRepository.save(event));
     }
 
     @Override
-    public EventFullDto getEventOfUserById(Long userId, Long eventId, HttpServletRequest httpRequest) {
+    public EventFullDto getEventOfUserById(Long userId, Long eventId) {
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
         }
@@ -243,8 +239,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto cancelEventByUser(Long userId,
                                           Long eventId,
-                                          EventUpdateRequest request,
-                                          HttpServletRequest httpRequest) {
+                                          EventUpdateRequest request) {
 
         if (!userRepository.findById(userId).isPresent()) {
             throw new UserNotFoundException("User with id " + userId + "is not found");
@@ -281,7 +276,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto publishEvent(Long eventId, HttpServletRequest httpRequest) {
+    public EventFullDto publishEvent(Long eventId) {
         if (!eventRepository.findById(eventId).isPresent()) {
             throw new EventNotFoundException("Event with id " + eventId + " is not found");
         }
@@ -295,7 +290,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto rejectEvent(Long eventId, HttpServletRequest httpRequest) {
+    public EventFullDto rejectEvent(Long eventId) {
         if (!eventRepository.findById(eventId).isPresent()) {
             throw new EventNotFoundException("Event with id " + eventId + " is not found");
         }

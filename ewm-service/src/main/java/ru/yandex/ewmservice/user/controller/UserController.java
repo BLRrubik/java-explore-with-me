@@ -7,6 +7,9 @@ import ru.yandex.ewmservice.user.dto.UserDto;
 import ru.yandex.ewmservice.user.requests.UserCreateRequest;
 import ru.yandex.ewmservice.user.service.UserService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,23 +25,23 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<UserDto>> searchUsers(@RequestParam("ids") List<Long> ids,
-                                                     @RequestParam("from") Integer from,
-                                                     @RequestParam("size") Integer size) {
+                                                     @RequestParam("from") @PositiveOrZero Integer from,
+                                                     @RequestParam("size") @Positive Integer size) {
         return ResponseEntity.of(Optional.of(userService.search(ids, from, size)));
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateRequest request) {
+    public ResponseEntity<UserDto> createUser(@RequestBody @Valid UserCreateRequest request) {
         return ResponseEntity.of(Optional.of(userService.createUser(request)));
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable("userId") Long userId) {
+    public void deleteUser(@PathVariable("userId") @Positive Long userId) {
         userService.deleteUser(userId);
     }
 
     @PatchMapping("/{userId}/activate")
-    public ResponseEntity<UserDto> activateUser(@PathVariable("userId") Long userId) {
+    public ResponseEntity<UserDto> activateUser(@PathVariable("userId") @Positive Long userId) {
         return ResponseEntity.of(Optional.of(userService.activateUser(userId)));
     }
 }

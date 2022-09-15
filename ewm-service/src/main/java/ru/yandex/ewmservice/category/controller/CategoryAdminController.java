@@ -8,6 +8,8 @@ import ru.yandex.ewmservice.category.requests.CategoryCreateRequest;
 import ru.yandex.ewmservice.category.requests.CategoryUpdateRequest;
 import ru.yandex.ewmservice.category.service.CategoryService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Optional;
 
 @RestController
@@ -21,17 +23,17 @@ public class CategoryAdminController {
     }
 
     @PostMapping()
-    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryCreateRequest request) {
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody @Valid CategoryCreateRequest request) {
         return ResponseEntity.of(Optional.of(categoryService.createCategory(request)));
     }
 
     @PatchMapping
-    public ResponseEntity<CategoryDto> updateCategory(@RequestBody CategoryUpdateRequest request) {
+    public ResponseEntity<CategoryDto> updateCategory(@RequestBody @Valid CategoryUpdateRequest request) {
         return ResponseEntity.of(Optional.of(categoryService.updateCategory(request)));
     }
 
     @DeleteMapping("/{catId}")
-    public void deleteCategory(@PathVariable("catId") Long categoryId) {
+    public void deleteCategory(@PathVariable("catId") @Positive Long categoryId) {
         categoryService.deleteCategory(categoryId);
     }
 }

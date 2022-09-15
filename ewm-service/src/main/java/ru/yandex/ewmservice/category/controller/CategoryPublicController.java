@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.ewmservice.category.dto.CategoryDto;
 import ru.yandex.ewmservice.category.service.CategoryService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,14 +22,16 @@ public class CategoryPublicController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<CategoryDto>> getAll(@RequestParam(value = "from", defaultValue = "0") Integer from,
-                                                    @RequestParam(value = "size", defaultValue = "10") Integer size) {
+    public ResponseEntity<List<CategoryDto>> getAll(@RequestParam(value = "from", defaultValue = "0")
+                                                        @PositiveOrZero Integer from,
+                                                    @RequestParam(value = "size", defaultValue = "10")
+                                                        @Positive Integer size) {
 
         return ResponseEntity.of(Optional.of(categoryService.getAll(from, size).getContent()));
     }
 
     @GetMapping("/{catId}")
-    public ResponseEntity<CategoryDto> getById(@PathVariable("catId") Long categoryId) {
+    public ResponseEntity<CategoryDto> getById(@PathVariable("catId") @Positive Long categoryId) {
         return ResponseEntity.of(Optional.of(categoryService.getById(categoryId)));
     }
 }

@@ -14,27 +14,27 @@ import java.util.List;
 
 public interface EventService {
 
-    List<EventShortDto> search(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest);
+    List<EventShortDto> search(EventFilter filter, Integer from, Integer size);
 
-    List<EventFullDto> searchByAdmin(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest);
+    List<EventFullDto> searchByAdmin(EventFilter filter, Integer from, Integer size);
 
     EventFullDto getEventById(Long eventId, HttpServletRequest httpRequest);
 
-    Page<EventShortDto> getEventsByUser(Long userId, Integer from, Integer size, HttpServletRequest httpRequest);
+    Page<EventShortDto> getEventsByUser(Long userId, Integer from, Integer size);
 
-    EventFullDto updateEventByUser(Long userId, EventUpdateRequest request, HttpServletRequest httpRequest);
+    EventFullDto updateEventByUser(Long userId, EventUpdateRequest request);
 
-    EventFullDto updateEventByAdmin(Long eventId, EventAdminUpdateRequest request, HttpServletRequest httpRequest);
+    EventFullDto updateEventByAdmin(Long eventId, EventAdminUpdateRequest request);
 
-    EventFullDto createEventByUser(Long userId, EventCreateRequest request, HttpServletRequest httpRequest);
+    EventFullDto createEventByUser(Long userId, EventCreateRequest request);
 
-    EventFullDto getEventOfUserById(Long userId, Long eventId, HttpServletRequest httpRequest);
+    EventFullDto getEventOfUserById(Long userId, Long eventId);
 
-    EventFullDto cancelEventByUser(Long userId, Long eventId, EventUpdateRequest request, HttpServletRequest httpRequest);
+    EventFullDto cancelEventByUser(Long userId, Long eventId, EventUpdateRequest request);
 
-    EventFullDto publishEvent(Long eventId, HttpServletRequest httpRequest);
+    EventFullDto publishEvent(Long eventId);
 
-    EventFullDto rejectEvent(Long eventId, HttpServletRequest httpRequest);
+    EventFullDto rejectEvent(Long eventId);
 
     List<RequestDto> getRequestsByEvent(Long userId, Long eventId);
 

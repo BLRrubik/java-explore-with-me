@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,13 +17,39 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventAdminUpdateRequest {
+    @NotEmpty
+    @NotNull
     private String title;
+    @NotEmpty
+    @NotNull
     private String description;
+    @NotEmpty
+    @NotNull
     private String annotation;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
+    @NotNull
     private Boolean paid;
+    @NotNull
     private Boolean requestModeration;
+    @NotNull
+    @Positive
     private Long category;
+    @NotNull
+    @PositiveOrZero
     private Integer participantLimit;
+    @NotNull
+    private Location location;
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Location {
+        @NotNull
+        private Float latitude;
+        @NotNull
+        private Float longitude;
+    }
 }

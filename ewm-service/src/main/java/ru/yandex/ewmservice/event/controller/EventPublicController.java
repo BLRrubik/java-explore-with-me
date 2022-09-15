@@ -11,6 +11,9 @@ import ru.yandex.ewmservice.event.filter.EventSort;
 import ru.yandex.ewmservice.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -43,10 +46,9 @@ public class EventPublicController {
                                                       @RequestParam(value = "onlyAvailable", required = false)
                                                       Boolean onlyAvailable,
                                                       @RequestParam(value = "from", defaultValue = "0")
-                                                      Integer from,
+                                                      @PositiveOrZero Integer from,
                                                       @RequestParam(value = "size", defaultValue = "10")
-                                                      Integer size,
-                                                      HttpServletRequest httpRequest) {
+                                                      @Positive Integer size) {
 
         EventFilter filter = new EventFilter();
         filter.setText(text);
@@ -57,11 +59,11 @@ public class EventPublicController {
         filter.setOnlyAvailable(onlyAvailable);
         filter.setSort(sort);
 
-        return ResponseEntity.of(Optional.of(eventService.search(filter, from, size, httpRequest)));
+        return ResponseEntity.of(Optional.of(eventService.search(filter, from, size)));
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getById(@PathVariable("eventId") Long eventId,
+    public ResponseEntity<EventFullDto> getById(@PathVariable("eventId") @Positive Long eventId,
                                                 HttpServletRequest httpRequest) {
         return ResponseEntity.of(Optional.of(eventService.getEventById(eventId, httpRequest)));
     }
