@@ -51,7 +51,7 @@ public class EventAdminController {
         filter.setRangeStart(rangeStart);
         filter.setRangeEnd(rangeEnd);
 
-        return ResponseEntity.of(Optional.of(eventService.searchByAdmin(filter, from, size, httpRequest).getContent()));
+        return ResponseEntity.of(Optional.of(eventService.searchByAdmin(filter, from, size, httpRequest)));
     }
 
     @PutMapping("/{eventId}")

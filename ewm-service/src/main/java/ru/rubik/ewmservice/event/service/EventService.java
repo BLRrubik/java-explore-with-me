@@ -14,8 +14,8 @@ import java.util.List;
 
 public interface EventService {
 
-    Page<EventShortDto> search(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest);
-    Page<EventFullDto> searchByAdmin(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest);
+    List<EventShortDto> search(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest);
+    List<EventFullDto> searchByAdmin(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest);
 
     EventFullDto getEventById(Long eventId, HttpServletRequest httpRequest);
 

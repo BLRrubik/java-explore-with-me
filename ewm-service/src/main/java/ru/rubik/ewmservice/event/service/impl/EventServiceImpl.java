@@ -65,55 +65,56 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<EventShortDto> search(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest) {
-        Page<EventShortDto> pageDto = EventMapper.convertPageToShortDto(searchByFilters(filter, from, size));
+    public List<EventShortDto> search(EventFilter filter, Integer from, Integer size, HttpServletRequest httpRequest) {
+        List<EventShortDto> pageDto = EventMapper.toShortDtos(searchByFilters(filter, from, size));
 
-        List<String> uris = pageDto.stream()
-                .map(EventShortDto::getId)
-                .map(id -> "/events/" + id)
-                .collect(Collectors.toList());
+        if (filter.getSort().equals(EventSort.EVENT_DATE)) {
+            return pageDto.stream()
+                    .sorted(Comparator.comparing(EventShortDto::getEventDate))
+                    .skip(from)
+                    .limit(size)
+                    .collect(Collectors.toList());
+        }
 
-        List<StatsDto> views = eventClient.getStats(httpRequest, uris);
+        if (filter.getSort().equals(EventSort.VIEWS)) {
+            List<EventShortDto> dtos = pageDto.stream()
+                    .sorted(Comparator.comparing(EventShortDto::getViews))
+                    .skip(from)
+                    .limit(size)
+                    .collect(Collectors.toList());
 
-        pageDto.stream()
-                .forEach(dto -> {
-                    int viewCount = views.stream()
-                            .filter(stat -> stat.getUri().split("/")[2].equals(dto.getId().toString()))
-                            .findFirst()
-                            .get()
-                            .getHits();
+            Collections.reverse(dtos);
 
-                    dto.setViews(viewCount);
-                });
+            return dtos;
+        }
 
         return pageDto;
     }
 
     @Override
-    public Page<EventFullDto> searchByAdmin(EventFilter filter,
+    public List<EventFullDto> searchByAdmin(EventFilter filter,
                                             Integer from,
                                             Integer size,
                                             HttpServletRequest httpRequest) {
 
-        Page<EventFullDto> pageDto = EventMapper.convertPageToFullDto(searchByFilters(filter, from, size));
+        List<EventFullDto> pageDto = EventMapper.toFullDtos(searchByFilters(filter, from, size));
 
-        List<String> uris = pageDto.stream()
-                .map(EventFullDto::getId)
-                .map(id -> "/events/" + id)
-                .collect(Collectors.toList());
 
-        List<StatsDto> views = eventClient.getStats(httpRequest, uris);
+        if (filter.getSort().equals(EventSort.EVENT_DATE)) {
+            return pageDto.stream()
+                    .sorted(Comparator.comparing(EventFullDto::getEventDate))
+                    .skip(from)
+                    .limit(size)
+                    .collect(Collectors.toList());
+        }
 
-        pageDto.stream()
-                .forEach(dto -> {
-                    int viewCount = views.stream()
-                            .filter(stat -> stat.getUri().split("/")[2].equals(dto.getId().toString()))
-                            .findFirst()
-                            .get()
-                            .getHits();
-
-                    dto.setViews(viewCount);
-                });
+        if (filter.getSort().equals(EventSort.VIEWS)) {
+            return pageDto.stream()
+                    .sorted(Comparator.comparing(EventFullDto::getViews))
+                    .skip(from)
+                    .limit(size)
+                    .collect(Collectors.toList());
+        }
 
         return pageDto;
     }
@@ -125,17 +126,8 @@ public class EventServiceImpl implements EventService {
         }
 
         eventClient.hit(httpRequest);
-        int views = eventClient.getStats(httpRequest, List.of("/events/" + eventId)).stream()
-                .filter(stats -> stats.getUri().equals("/events/" + eventId))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get();
 
-        EventFullDto dto = EventMapper.toFullDto(eventRepository.findByIdAndState(eventId, EventState.PUBLISHED));
-
-        dto.setViews(views);
-
-        return dto;
+        return EventMapper.toFullDto(eventRepository.findByIdAndState(eventId, EventState.PUBLISHED));
     }
 
     @Override
@@ -149,27 +141,7 @@ public class EventServiceImpl implements EventService {
 
         Page<Event> events = eventRepository.findByInitiatorId(userId, PageRequest.of(from / size, size));
 
-        Page<EventShortDto> pageDto = EventMapper.convertPageToShortDto(events);
-
-        List<String> uris = pageDto.stream()
-                .map(EventShortDto::getId)
-                .map(id -> "/events/" + id)
-                .collect(Collectors.toList());
-
-        List<StatsDto> views = eventClient.getStats(httpRequest, uris);
-
-        pageDto.stream()
-                .forEach(dto -> {
-                    int viewCount = views.stream()
-                            .filter(stat -> stat.getUri().split("/")[2].equals(dto.getId().toString()))
-                            .findFirst()
-                            .get()
-                            .getHits();
-
-                    dto.setViews(viewCount);
-                });
-
-        return pageDto;
+        return EventMapper.convertPageToShortDto(events);
     }
 
     @Override
@@ -201,16 +173,7 @@ public class EventServiceImpl implements EventService {
         event.setParticipantLimit(request.getParticipantLimit());
         event.setTitle(request.getTitle());
 
-        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
-
-        dto.setViews(eventClient.getStats(httpRequest,
-                        List.of("users/" + userId + "/events/" + request.getEventId())).stream()
-                .filter(stats -> stats.getUri().equals("users/" + userId + "/events/" + request.getEventId()))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get());
-
-        return dto;
+        return EventMapper.toFullDto(eventRepository.save(event));
     }
 
     @Override
@@ -235,14 +198,6 @@ public class EventServiceImpl implements EventService {
         event.setParticipantLimit(request.getParticipantLimit());
         event.setTitle(request.getTitle());
         event.setRequestModeration(request.getRequestModeration());
-
-        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
-
-        dto.setViews(eventClient.getStats(httpRequest, List.of("admin/events/" + eventId)).stream()
-                .filter(stats -> stats.getUri().equals("admin/events/" + eventId))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get());
 
         return EventMapper.toFullDto(eventRepository.save(event));
     }
@@ -272,17 +227,7 @@ public class EventServiceImpl implements EventService {
         event.setInitiator(userRepository.findById(userId).get());
         event.setState(EventState.PENDING);
 
-        Event resultEvent = eventRepository.save(event);
-
-        EventFullDto dto = EventMapper.toFullDto(resultEvent);
-
-        dto.setViews(eventClient.getStats(httpRequest, List.of("/events/" + resultEvent.getId())).stream()
-                .filter(stats -> stats.getUri().equals("/events/" + resultEvent.getId()))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get());
-
-        return dto;
+        return EventMapper.toFullDto(event);
     }
 
     @Override
@@ -295,16 +240,7 @@ public class EventServiceImpl implements EventService {
             throw new EventNotFoundException("User with id " + userId + " dont have event with id " + eventId);
         }
 
-        EventFullDto dto = EventMapper.toFullDto(eventRepository.findByIdAndInitiatorId(eventId, userId));
-
-        dto.setViews(eventClient.getStats(httpRequest,
-                        List.of("users/" + userId + "/events/" + eventId)).stream()
-                .filter(stats -> stats.getUri().equals("users/" + userId + "/events/" + eventId))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get());
-
-        return dto;
+        return EventMapper.toFullDto(eventRepository.findByIdAndInitiatorId(eventId, userId));
     }
 
     @Override
@@ -344,15 +280,7 @@ public class EventServiceImpl implements EventService {
         event.setTitle(request.getTitle());
         event.setState(EventState.CANCELED);
 
-        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
-
-        dto.setViews(eventClient.getStats(httpRequest, List.of("users/" + userId + "/events/" + eventId)).stream()
-                .filter(stats -> stats.getUri().equals("users/" + userId + "/events/" + eventId))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get());
-
-        return dto;
+        return EventMapper.toFullDto(eventRepository.save(event));
     }
 
     @Override
@@ -366,15 +294,7 @@ public class EventServiceImpl implements EventService {
         event.setState(EventState.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
 
-        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
-
-        dto.setViews(eventClient.getStats(httpRequest, List.of("admin/events/" + eventId + "/publish")).stream()
-                .filter(stats -> stats.getUri().equals("admin/events/" + eventId + "/publish"))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get());
-
-        return dto;
+        return EventMapper.toFullDto(eventRepository.save(event));
     }
 
     @Override
@@ -388,15 +308,7 @@ public class EventServiceImpl implements EventService {
         event.setState(EventState.CANCELED);
         event.setPublishedOn(null);
 
-        EventFullDto dto = EventMapper.toFullDto(eventRepository.save(event));
-
-        dto.setViews(eventClient.getStats(httpRequest, List.of("admin/events/" + eventId + "/reject")).stream()
-                .filter(stats -> stats.getUri().equals("admin/events/" + eventId + "/reject"))
-                .findFirst()
-                .map(StatsDto::getHits)
-                .get());
-
-        return dto;
+        return EventMapper.toFullDto(eventRepository.save(event));
     }
 
     @Override
@@ -458,11 +370,7 @@ public class EventServiceImpl implements EventService {
         return RequestMapper.toDto(requestRepository.save(request));
     }
 
-    private Page<Event> searchByFilters(EventFilter filter, Integer from, Integer size) {
-        Set<String> params = new HashSet<>();
-
-        params.add("limit " + size);
-        params.add("offset " + from);
+    private List<Event> searchByFilters(EventFilter filter, Integer from, Integer size) {
 
         Set<String> whereClauses = new HashSet<>();
         Set<String> orderClauses = new HashSet<>();
@@ -535,18 +443,10 @@ public class EventServiceImpl implements EventService {
 
         String query = "select * from events as e " +
                 " where " + String.join(" and ", whereClauses) +
-                (!orderClauses.isEmpty() ? " order by " + String.join(", ", orderClauses):"") +
-                " " + String.join(" ", params);
+                (!orderClauses.isEmpty() ? " order by " + String.join(", ", orderClauses):"");
 
-        System.out.println(query);
 
-        var result = jdbcTemplate.query(query, this::mapRow);
-
-        if (result.isEmpty()) {
-            return Page.empty();
-        }
-
-        return new PageImpl<>(result, PageRequest.of(from/size, size), result.size());
+        return jdbcTemplate.query(query, this::mapRow);
     }
     private Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         Event event = new Event();

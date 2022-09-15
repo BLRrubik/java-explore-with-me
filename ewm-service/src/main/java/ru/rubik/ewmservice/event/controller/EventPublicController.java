@@ -57,7 +57,7 @@ public class EventPublicController {
         filter.setOnlyAvailable(onlyAvailable);
         filter.setSort(sort);
 
-        return ResponseEntity.of(Optional.of(eventService.search(filter, from, size, httpRequest).getContent()));
+        return ResponseEntity.of(Optional.of(eventService.search(filter, from, size, httpRequest)));
     }
 
     @GetMapping("/{eventId}")

@@ -1,17 +1,32 @@
 package ru.rubik.ewmservice.event.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.stereotype.Component;
 import ru.rubik.ewmservice.category.dto.CategoryDto;
 import ru.rubik.ewmservice.category.entity.Category;
+import ru.rubik.ewmservice.client.event.EventClient;
 import ru.rubik.ewmservice.event.dto.EventFullDto;
 import ru.rubik.ewmservice.event.dto.EventShortDto;
 import ru.rubik.ewmservice.event.entity.Event;
+import ru.rubik.ewmservice.event.repository.EventRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class EventMapper {
+
+    private static EventClient eventClient;
+    private static EventRepository eventRepository;
+
+    @Autowired
+    public EventMapper(EventClient eventClient, EventRepository eventRepository) {
+        this.eventClient = eventClient;
+        this.eventRepository = eventRepository;
+    }
+
     public static EventFullDto toFullDto(Event event) {
         return new EventFullDto(
                 event.getId(),
@@ -32,9 +47,13 @@ public class EventMapper {
                 new EventFullDto.User(
                         event.getInitiator().getId(),
                         event.getInitiator().getName()
-                )
-                //todo -> confirmedRequests
-                //todo -> views
+                ),
+                eventClient.getStats(List.of("/events/"+event.getId())).stream()
+                        .filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString()))
+                        .findFirst()
+                        .get()
+                        .getHits(),
+                eventRepository.countApprovedRequests(event.getId())
         );
     }
 
@@ -58,9 +77,13 @@ public class EventMapper {
                 new EventShortDto.User(
                         event.getInitiator().getId(),
                         event.getInitiator().getName()
-                )
-                //todo -> confirmedRequests
-                //todo -> views
+                ),
+                eventClient.getStats(List.of("/events/"+event.getId())).stream()
+                        .filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString()))
+                        .findFirst()
+                        .get()
+                        .getHits(),
+                eventRepository.countApprovedRequests(event.getId())
         );
     }
 

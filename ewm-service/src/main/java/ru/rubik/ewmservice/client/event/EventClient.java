@@ -36,7 +36,7 @@ public class EventClient extends BaseClient {
         );
     }
 
-    public List<StatsDto> getStats(HttpServletRequest httpRequest, List<String> uris) {
+    public List<StatsDto> getStats(List<String> uris) {
         long start = 1L;
         long end = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
 
