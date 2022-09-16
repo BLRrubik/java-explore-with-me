@@ -1,3 +1,4 @@
-# java-explore-with-me
+# explore-with-me
 
-Template repository for ExploreWithMe project.
+Github: 
+https://github.com/BLRrubik/java-explore-with-me
