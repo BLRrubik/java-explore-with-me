@@ -379,7 +379,7 @@ public class EventServiceImpl implements EventService {
         if (filter.getCategories() != null && !filter.getCategories().isEmpty()) {
             List<String> categories = filter.getCategories().stream()
                     .map(id -> "e.category_id=" + id)
-                    .toList();
+                    .collect(Collectors.toList());
 
             whereClauses.add("(" + String.join(" or ", categories) + ")");
         }
@@ -409,7 +409,7 @@ public class EventServiceImpl implements EventService {
         if (filter.getUsers() != null && !filter.getUsers().isEmpty()) {
             List<String> users = filter.getUsers().stream()
                     .map(id -> "e.initiator=" + id)
-                    .toList();
+                    .collect(Collectors.toList());
 
             whereClauses.add("(" + String.join(" or ", users) + ")");
 

@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
                 .map(userRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .toList();
+                .collect(Collectors.toList());
 
         List<User> page = users.stream()
                 .sorted(Comparator.comparing(User::getId))
