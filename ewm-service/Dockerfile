@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM openjdk:11
 COPY target/*.jar ewm_service.jar
-EXPOSE 9090
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/ewm_service.jar"]
