@@ -11,7 +11,6 @@ import ru.yandex.ewmservice.event.filter.EventSort;
 import ru.yandex.ewmservice.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;

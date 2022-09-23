@@ -10,7 +10,6 @@ import ru.yandex.ewmservice.event.requests.EventUpdateRequest;
 import ru.yandex.ewmservice.event.service.EventService;
 import ru.yandex.ewmservice.event_request.dto.RequestDto;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
