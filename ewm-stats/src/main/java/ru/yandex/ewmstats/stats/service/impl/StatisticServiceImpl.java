@@ -23,12 +23,12 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public void hit(EndpointHit request) {
-        Statistic statistic = new Statistic();
-
-        statistic.setApp(request.getApp());
-        statistic.setIp(request.getIp());
-        statistic.setUri(request.getUri());
-        statistic.setTimestamp(LocalDateTime.now());
+        Statistic statistic = Statistic.builder()
+                .ip(request.getIp())
+                .app(request.getApp())
+                .uri(request.getUri())
+                .timestamp(LocalDateTime.now())
+                .build();
 
         statisticRepository.save(statistic);
     }
