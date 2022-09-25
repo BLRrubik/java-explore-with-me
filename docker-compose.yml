@@ -5,7 +5,7 @@ services:
     image: ewm-stats-dock
     container_name: ewm-stats-container
     ports:
-      - "9080:9080"
+      - "9090:9090"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm_stats
       - SERVER_PORT=9080
@@ -13,7 +13,7 @@ services:
       - stats-db
 
   stats-db:
-    image: postgres:13.7-alpine
+    image: postgres:14-alpine
     container_name: stats-db-container
     ports:
       - "5432:5432"
@@ -36,7 +36,7 @@ services:
       - ewm-db
 
   ewm-db:
-    image: postgres:13.7-alpine
+    image: postgres:14-alpine
     container_name: ewm-db-container
     ports:
       - "6541:5432"
