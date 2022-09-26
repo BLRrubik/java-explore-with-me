@@ -93,26 +93,7 @@ public class EventServiceImpl implements EventService {
                                             Integer from,
                                             Integer size) {
 
-        List<EventFullDto> pageDto = EventMapper.toFullDtos(searchByFilters(filter, from, size));
-
-
-        if (filter.getSort().equals(EventSort.EVENT_DATE)) {
-            return pageDto.stream()
-                    .sorted(Comparator.comparing(EventFullDto::getEventDate))
-                    .skip(from)
-                    .limit(size)
-                    .collect(Collectors.toList());
-        }
-
-        if (filter.getSort().equals(EventSort.VIEWS)) {
-            return pageDto.stream()
-                    .sorted(Comparator.comparing(EventFullDto::getViews))
-                    .skip(from)
-                    .limit(size)
-                    .collect(Collectors.toList());
-        }
-
-        return pageDto;
+        return EventMapper.toFullDtos(searchByFilters(filter, from, size));
     }
 
     @Override

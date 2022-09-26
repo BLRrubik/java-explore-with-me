@@ -8,6 +8,8 @@ import lombok.Setter;
 import ru.yandex.ewmservice.event.entity.EventState;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,6 +35,16 @@ public class EventFullDto {
     private Integer views = 0;
     private Integer confirmedRequests = 0;
     private Location location;
+    private List<Comment> comments = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Comment {
+        private Long author;
+        private String text;
+    }
 
 
     @Getter
