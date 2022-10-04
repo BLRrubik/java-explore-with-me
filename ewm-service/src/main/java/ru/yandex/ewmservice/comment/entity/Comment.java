@@ -31,7 +31,7 @@ public class Comment {
     private LocalDateTime edited;
 
     @ManyToOne
-    @JoinColumn(name = "author")
+    @JoinColumn(name = "author_id")
     private User author;
 
     @ManyToOne

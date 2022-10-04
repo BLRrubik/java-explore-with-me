@@ -63,7 +63,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> search(EventFilter filter, Integer from, Integer size) {
-        List<EventShortDto> pageDto = EventMapper.toShortDtos(searchByFilters(filter, from, size));
+        List<EventShortDto> pageDto = EventMapper.toShortDtos(searchByFilters(filter));
 
         if (filter.getSort().equals(EventSort.EVENT_DATE)) {
             return pageDto.stream()
@@ -93,7 +93,10 @@ public class EventServiceImpl implements EventService {
                                             Integer from,
                                             Integer size) {
 
-        return EventMapper.toFullDtos(searchByFilters(filter, from, size));
+        return EventMapper.toFullDtos(searchByFilters(filter)).stream()
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -343,7 +346,7 @@ public class EventServiceImpl implements EventService {
         return RequestMapper.toDto(requestRepository.save(request));
     }
 
-    private List<Event> searchByFilters(EventFilter filter, Integer from, Integer size) {
+    private List<Event> searchByFilters(EventFilter filter) {
 
         Set<String> whereClauses = new HashSet<>();
         Set<String> orderClauses = new HashSet<>();

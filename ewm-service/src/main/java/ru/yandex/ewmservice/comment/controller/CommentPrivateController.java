@@ -8,6 +8,8 @@ import ru.yandex.ewmservice.comment.requests.CommentCreateRequest;
 import ru.yandex.ewmservice.comment.requests.CommentUpdateRequest;
 import ru.yandex.ewmservice.comment.service.CommentService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Optional;
 
 @RestController
@@ -21,23 +23,21 @@ public class CommentPrivateController {
     }
 
     @PostMapping("/events/{eventId}")
-    public ResponseEntity<CommentDto> createComment(@PathVariable("userId") Long userId,
-                                                    @PathVariable("eventId") Long eventId,
+    public ResponseEntity<CommentDto> createComment(@PathVariable("userId") @Positive Long userId,
+                                                    @PathVariable("eventId") @Positive Long eventId,
                                                     @RequestBody CommentCreateRequest request) {
         return ResponseEntity.of(Optional.of(commentService.createComment(request, userId, eventId)));
     }
 
-    @PutMapping("/events/{eventId}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable("userId") Long userId,
-                                                    @PathVariable("eventId") Long eventId,
-                                                    @RequestBody CommentUpdateRequest request) {
-        return ResponseEntity.of(Optional.of(commentService.updateComment(request, userId, eventId)));
+    @PutMapping()
+    public ResponseEntity<CommentDto> updateComment(@PathVariable("userId") @Positive Long userId,
+                                                    @RequestBody @Valid CommentUpdateRequest request) {
+        return ResponseEntity.of(Optional.of(commentService.updateComment(request, userId)));
     }
 
-    @DeleteMapping("/{commentId}/events/{eventId}")
-    public void deleteComment(@PathVariable("userId") Long userId,
-                              @PathVariable("eventId") Long eventId,
-                              @PathVariable("commentId") Long commentId) {
-        commentService.deleteCommentByUser(userId, eventId, commentId);
+    @DeleteMapping("/{commentId}")
+    public void deleteComment(@PathVariable("userId") @Positive Long userId,
+                              @PathVariable("commentId") @Positive Long commentId) {
+        commentService.deleteCommentByUser(userId, commentId);
     }
 }

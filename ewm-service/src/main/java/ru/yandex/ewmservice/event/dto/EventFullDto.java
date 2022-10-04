@@ -42,7 +42,8 @@ public class EventFullDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Comment {
-        private Long author;
+        private Long authorId;
+        private String authorName;
         private String text;
     }
 

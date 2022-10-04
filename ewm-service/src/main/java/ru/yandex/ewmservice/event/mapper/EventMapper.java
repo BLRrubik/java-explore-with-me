@@ -62,6 +62,7 @@ public class EventMapper {
                         .map(comment ->
                             new EventFullDto.Comment(
                                 comment.getAuthor().getId(),
+                                comment.getAuthor().getName(),
                                 comment.getText()
                         ))
                         .collect(Collectors.toList())
@@ -92,8 +93,9 @@ public class EventMapper {
                 eventRepository.countApprovedRequests(event.getId()),
                 commentRepository.findByEventId(event.getId()).stream()
                         .map(comment ->
-                                new EventFullDto.Comment(
+                                new EventShortDto.Comment(
                                         comment.getAuthor().getId(),
+                                        comment.getAuthor().getName(),
                                         comment.getText()
                                 ))
                         .collect(Collectors.toList()));

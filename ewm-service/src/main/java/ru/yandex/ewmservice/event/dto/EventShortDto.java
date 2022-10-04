@@ -25,14 +25,15 @@ public class EventShortDto {
     private User initiator;
     private Integer views = 0;
     private Integer confirmedRequests = 0;
-    private List<EventFullDto.Comment> comments = new ArrayList<>();
+    private List<EventShortDto.Comment> comments = new ArrayList<>();
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Comment {
-        private Long author;
+        private Long authorId;
+        private String authorName;
         private String text;
     }
 

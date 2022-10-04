@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.ewmservice.comment.service.CommentService;
 
+import javax.validation.constraints.Positive;
+
 @RestController
 @RequestMapping("/admin/comments")
 public class CommentAdminController {
@@ -17,9 +19,8 @@ public class CommentAdminController {
         this.commentService = commentService;
     }
 
-    @DeleteMapping("/{commentId}/events/{eventId}")
-    public void deleteComment(@PathVariable("commentId") Long commentId,
-                              @PathVariable("eventId") Long eventId) {
-        commentService.deleteCommentByAdmin(eventId, commentId);
+    @DeleteMapping("/{commentId}/")
+    public void deleteComment(@PathVariable("commentId") @Positive Long commentId) {
+        commentService.deleteCommentByAdmin(commentId);
     }
 }
