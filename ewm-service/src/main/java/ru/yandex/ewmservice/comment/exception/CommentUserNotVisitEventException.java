@@ -4,7 +4,8 @@ public class CommentUserNotVisitEventException extends RuntimeException {
     public CommentUserNotVisitEventException() {
     }
 
-    public CommentUserNotVisitEventException(String message) {
-        super(message);
+    public CommentUserNotVisitEventException(Long userId, Long eventId) {
+        super("User with id " + userId +
+                " wasnt visit event with id " + eventId);
     }
 }

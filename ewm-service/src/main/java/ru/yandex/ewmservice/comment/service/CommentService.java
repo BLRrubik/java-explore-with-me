@@ -39,8 +39,7 @@ public class CommentService{
         }
 
         if (!userRepository.findVisitedByEvent(userId, eventId).isPresent()) {
-            throw new CommentUserNotVisitEventException("User with id " + userId +
-                    " wasnt visit event with id " + eventId);
+            throw new CommentUserNotVisitEventException(userId, eventId);
         }
 
         Comment comment = new Comment();
@@ -58,8 +57,7 @@ public class CommentService{
 
     public CommentDto updateComment(CommentUpdateRequest request, Long userId) {
         if (commentRepository.findByIdAndAuthorId(request.getId(), userId) == null) {
-            throw new CommentAuthorException("Comment with id " + request.getId() +
-                    " dont have author with id " + userId);
+            throw new CommentAuthorException(request.getId(), userId);
         }
 
         Comment comment = commentRepository.findById(request.getId()).get();
@@ -72,8 +70,7 @@ public class CommentService{
 
     public void deleteCommentByUser(Long userId, Long commentId) {
         if (commentRepository.findByIdAndAuthorId(commentId, userId) == null) {
-            throw new CommentAuthorException("Comment with id " + commentId +
-                    " dont have author with id " + userId);
+            throw new CommentAuthorException(commentId, userId);
         }
 
         commentRepository.deleteById(commentId);
@@ -81,7 +78,7 @@ public class CommentService{
 
     public void deleteCommentByAdmin(Long commentId) {
         if (!commentRepository.findById(commentId).isPresent()) {
-            throw new CommentNotFoundException("Comment with id " + commentId + " is not found");
+            throw new CommentNotFoundException(commentId);
         }
 
         commentRepository.deleteById(commentId);

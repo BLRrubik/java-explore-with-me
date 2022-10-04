@@ -4,7 +4,7 @@ public class CommentNotFoundException extends RuntimeException {
     public CommentNotFoundException() {
     }
 
-    public CommentNotFoundException(String message) {
-        super(message);
+    public CommentNotFoundException(Long commentId) {
+        super("Comment with id " + commentId + " is not found");
     }
 }
