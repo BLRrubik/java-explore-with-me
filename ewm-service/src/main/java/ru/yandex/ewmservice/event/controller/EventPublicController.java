@@ -40,7 +40,8 @@ public class EventPublicController {
                                                       @RequestParam(value = "rangeEnd", required = false)
                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                       LocalDateTime rangeEnd,
-                                                      @RequestParam(value = "sort", required = false)
+                                                      @RequestParam(value = "sort", required = false,
+                                                      defaultValue = "EVENT_DATE")
                                                       EventSort sort,
                                                       @RequestParam(value = "onlyAvailable", required = false)
                                                       Boolean onlyAvailable,

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 import ru.yandex.ewmservice.client.event.EventClient;
+import ru.yandex.ewmservice.comment.repository.CommentRepository;
 import ru.yandex.ewmservice.event.dto.EventFullDto;
 import ru.yandex.ewmservice.event.dto.EventShortDto;
 import ru.yandex.ewmservice.event.entity.Event;
@@ -18,19 +19,54 @@ public class EventMapper {
 
     private static EventClient eventClient;
     private static EventRepository eventRepository;
+    private static CommentRepository commentRepository;
 
     @Autowired
-    public static void setEventClient(EventClient eventClient) {
-        EventMapper.eventClient = eventClient;
+    public EventMapper(EventClient eventClient, EventRepository eventRepository, CommentRepository commentRepository) {
+        this.eventClient = eventClient;
+        this.eventRepository = eventRepository;
+        this.commentRepository = commentRepository;
     }
 
-    @Autowired
-    public static void setEventRepository(EventRepository eventRepository) {
-        EventMapper.eventRepository = eventRepository;
-    }
 
     public static EventFullDto toFullDto(Event event) {
-        return new EventFullDto(event.getId(), event.getTitle(), event.getDescription(), event.getAnnotation(), event.getCreatedOn(), event.getEventDate(), event.getPublishedOn(), event.getPaid(), event.getState(), event.getRequestModeration(), event.getParticipantLimit(), new EventFullDto.Category(event.getCategory().getId(), event.getCategory().getName()), new EventFullDto.User(event.getInitiator().getId(), event.getInitiator().getName()), eventClient.getStats(List.of("/events/" + event.getId())).stream().filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString())).findFirst().get().getHits(), eventRepository.countApprovedRequests(event.getId()), new EventFullDto.Location(event.getLatitude(), event.getLongitude()));
+        return new EventFullDto(event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getAnnotation(),
+                event.getCreatedOn(),
+                event.getEventDate(),
+                event.getPublishedOn(),
+                event.getPaid(),
+                event.getState(),
+                event.getRequestModeration(),
+                event.getParticipantLimit(),
+                new EventFullDto.Category(
+                        event.getCategory().getId(),
+                        event.getCategory().getName()),
+                new EventFullDto.User(
+                        event.getInitiator().getId(),
+                        event.getInitiator().getName()),
+                eventClient.getStats(
+                        List.of("/events/" + event.getId())).stream()
+                        .filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString()))
+                        .findFirst()
+                        .get()
+                        .getHits(),
+                eventRepository.countApprovedRequests(
+                        event.getId()),
+                new EventFullDto.Location(
+                        event.getLatitude(),
+                        event.getLongitude()),
+                commentRepository.findByEventId(event.getId()).stream()
+                        .map(comment ->
+                            new EventFullDto.Comment(
+                                comment.getAuthor().getId(),
+                                comment.getAuthor().getName(),
+                                comment.getText()
+                        ))
+                        .collect(Collectors.toList())
+        );
     }
 
     public static List<EventFullDto> toFullDtos(List<Event> events) {
@@ -38,7 +74,31 @@ public class EventMapper {
     }
 
     public static EventShortDto toShortDto(Event event) {
-        return new EventShortDto(event.getId(), event.getTitle(), event.getAnnotation(), event.getEventDate(), event.getPaid(), new EventShortDto.Category(event.getCategory().getId(), event.getCategory().getName()), new EventShortDto.User(event.getInitiator().getId(), event.getInitiator().getName()), eventClient.getStats(List.of("/events/" + event.getId())).stream().filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString())).findFirst().get().getHits(), eventRepository.countApprovedRequests(event.getId()));
+        return new EventShortDto(
+                event.getId(),
+                event.getTitle(),
+                event.getAnnotation(),
+                event.getEventDate(),
+                event.getPaid(),
+                new EventShortDto.Category(
+                        event.getCategory().getId(),
+                        event.getCategory().getName()),
+                new EventShortDto.User(
+                        event.getInitiator().getId(),
+                        event.getInitiator().getName()),
+                eventClient.getStats(
+                        List.of("/events/" + event.getId())).stream()
+                        .filter(stat -> stat.getUri().split("/")[2].equals(event.getId().toString()))
+                        .findFirst().get().getHits(),
+                eventRepository.countApprovedRequests(event.getId()),
+                commentRepository.findByEventId(event.getId()).stream()
+                        .map(comment ->
+                                new EventShortDto.Comment(
+                                        comment.getAuthor().getId(),
+                                        comment.getAuthor().getName(),
+                                        comment.getText()
+                                ))
+                        .collect(Collectors.toList()));
     }
 
     public static List<EventShortDto> toShortDtos(List<Event> events) {

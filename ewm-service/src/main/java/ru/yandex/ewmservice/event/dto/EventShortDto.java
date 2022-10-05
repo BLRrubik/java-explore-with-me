@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,6 +25,17 @@ public class EventShortDto {
     private User initiator;
     private Integer views = 0;
     private Integer confirmedRequests = 0;
+    private List<EventShortDto.Comment> comments = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Comment {
+        private Long authorId;
+        private String authorName;
+        private String text;
+    }
 
     @Getter
     @Setter
