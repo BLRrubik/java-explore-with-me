@@ -1,2 +1,14 @@
-# java-explore-with-me
-Template repository for ExploreWithMe project.
+# Explore with me
+
+Приложение — афиша, где можно предложить какое-либо событие от выставки до похода в кино и набрать компанию для участия в нём.
+
+Author: https://github.com/BLRrubik
+
+>Services: 
+>> ewm-service - основной сервис, в котором лежит основная бизнес логика приложения
+> 
+>> ewm-stats - сервис статистики, в котором лежит информация по посещению определенных эндпоинтов
+
+
+
+
